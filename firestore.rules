@@ -109,8 +109,7 @@ service cloud.firestore {
      * @principle Allows any authenticated user to create/update to support a shared-access model for cashiers. Deletes are disabled for safety.
      */
     match /orders/{orderId} {
-      allow get: if isSignedIn();
-      allow list: if request.auth != null;
+      allow read: if true;
       allow create: if isSignedIn();
       allow update: if isSignedIn() && resource != null;
       allow delete: if false;
