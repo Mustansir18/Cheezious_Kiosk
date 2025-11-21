@@ -98,25 +98,16 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if false;
     }
-
-    /**
-     * @description Rules for the entire 'orders' collection, primarily for querying/listing.
-     * @path /orders
-     * @allow (list) Any signed-in user (e.g., a cashier) can list all orders to display on the dashboard.
-     * @allow (create) Any signed-in user can create a new order.
-     */
-    match /orders {
-        allow list: if isSignedIn();
-        allow create: if isSignedIn();
-    }
     
     /**
      * @description Manages individual customer orders. This applies to single-document operations.
      * @path /orders/{orderId}
      * @allow (get, update) Any authenticated user can get or update an order to support the cashier workflow.
+     * @allow (create) Any signed-in user can create a new order.
      * @deny (delete) Deleting orders is disallowed to prevent accidental data loss.
      */
     match /orders/{orderId} {
+      allow create: if isSignedIn();
       allow get: if isSignedIn();
       allow update: if isSignedIn() && resource != null;
       allow delete: if false; // Disallow direct deletion
@@ -137,6 +128,16 @@ service cloud.firestore {
         allow update: if isSignedIn() && resource != null && orderExists(orderId) && request.resource.data.orderId == resource.data.orderId;
         allow delete: if false;
       }
+    }
+    
+    /**
+     * @description Rules for the entire 'orders' collection, primarily for querying/listing.
+     *              This rule is SEPARATE from the /orders/{orderId} rule above.
+     * @path /orders
+     * @allow (list) Any signed-in user (e.g., a cashier) can list all orders to display on the dashboard.
+     */
+    match /orders {
+        allow list: if isSignedIn();
     }
   }
 }
