@@ -7,11 +7,11 @@ import { menuItems } from "@/lib/data";
 import type { OrderType } from "@/lib/types";
 import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Pizza, Burger, Drumstick, GlassWater } from 'lucide-react';
+import { Pizza, Beef, Drumstick, GlassWater } from 'lucide-react';
 
 const categoryIcons: { [key: string]: React.ReactNode } = {
   Pizzas: <Pizza className="mr-2 h-5 w-5" />,
-  Burgers: <Burger className="mr-2 h-5 w-5" />,
+  Burgers: <Beef className="mr-2 h-5 w-5" />,
   Sides: <Drumstick className="mr-2 h-5 w-5" />,
   Drinks: <GlassWater className="mr-2 h-5 w-5" />,
 };
