@@ -98,10 +98,13 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({ children }) 
     };
   }, [firebaseServices, userAuthState]);
 
+  // Only render children when firebase is initialized and user state is determined.
+  const canRenderChildren = contextValue.areServicesAvailable && !userAuthState.isUserLoading;
+
   return (
     <FirebaseContext.Provider value={contextValue}>
       <FirebaseErrorListener />
-      {children}
+      {canRenderChildren ? children : null}
     </FirebaseContext.Provider>
   );
 };
