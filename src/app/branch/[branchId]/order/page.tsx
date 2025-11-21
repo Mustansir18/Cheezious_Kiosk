@@ -11,9 +11,8 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import Link from "next/link";
 import { branches } from "@/lib/data";
 import type { PlacedOrder } from "@/lib/types";
-import { useFirebase } from "@/firebase";
+import { useFirebase, errorEmitter, FirestorePermissionError } from "@/firebase";
 import { collection, serverTimestamp, addDoc } from "firebase/firestore";
-import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 
 export default function OrderConfirmationPage() {
   const { items, cartTotal, branchId, orderType, clearCart } = useCart();
@@ -48,14 +47,25 @@ export default function OrderConfirmationPage() {
         orderNumber,
     };
 
+    const ordersCollection = collection(firestore, "orders");
+    
     try {
-        const ordersCollection = collection(firestore, "orders");
-        // We need to wait for the order to be created to get its ID.
-        const docRef = await addDoc(ordersCollection, newOrder);
+        const docRef = await addDoc(ordersCollection, newOrder).catch(async (error) => {
+            errorEmitter.emit('permission-error', new FirestorePermissionError({
+                path: 'orders',
+                operation: 'create',
+                requestResourceData: newOrder
+            }));
+            // We explicitly re-throw or return a value indicating failure.
+            // Here, returning null and checking for it is a clean way to stop execution.
+            return null;
+        });
 
-        // Ensure docRef is not null before proceeding
         if (!docRef) {
-          throw new Error("Failed to create order document.");
+          // The error has been emitted, so we just stop here.
+          // The user will see the detailed error overlay.
+          console.error("Failed to create order document due to permissions or other error.");
+          return; 
         }
 
         const orderItemsCollection = collection(firestore, `orders/${docRef.id}/order_items`);
@@ -68,11 +78,15 @@ export default function OrderConfirmationPage() {
                 itemPrice: item.price,
                 name: item.name,
             };
-            // Use non-blocking for items as we don't need their refs immediately.
-            return addDocumentNonBlocking(orderItemsCollection, orderItem);
+            return addDoc(orderItemsCollection, orderItem).catch(async (error) => {
+                errorEmitter.emit('permission-error', new FirestorePermissionError({
+                    path: `orders/${docRef.id}/order_items`,
+                    operation: 'create',
+                    requestResourceData: orderItem
+                }));
+            });
         });
 
-        // Wait for all items to be added
         await Promise.all(itemPromises);
 
         const placedOrder: PlacedOrder = {
@@ -87,9 +101,8 @@ export default function OrderConfirmationPage() {
         clearCart();
         router.push("/order-status");
 
-    } catch (error) {
-        console.error("Failed to place order:", error);
-        // Optionally show a toast notification for the error
+    } catch (error: any) {
+        console.error("An unexpected error occurred while placing the order:", error);
     }
   };
 
