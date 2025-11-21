@@ -17,9 +17,10 @@ const categoryIcons: { [key: string]: React.ReactNode } = {
   Drinks: <GlassWater className="mr-2 h-5 w-5" />,
 };
 
-export default function MenuPage({ params: { branchId } }: { params: { branchId: string } }) {
+export default function MenuPage({ params }: { params: { branchId: string } }) {
   const searchParams = useSearchParams();
   const { setOrderDetails } = useCart();
+  const { branchId } = params;
 
   useEffect(() => {
     const mode = searchParams.get("mode") as OrderType;
