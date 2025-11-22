@@ -5,7 +5,8 @@ import {
   Settings,
   Package,
   BarChart4,
-  LayoutDashboard
+  LayoutDashboard,
+  Megaphone
 } from 'lucide-react';
 import {
   Tooltip,
@@ -62,6 +63,16 @@ export default function AdminLayout({
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="right">Menu</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/admin/deals">
+                  <Button variant="outline" size="icon" aria-label="Deals">
+                    <Megaphone className="h-5 w-5" />
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">Deals</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>

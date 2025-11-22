@@ -1,8 +1,9 @@
+
 "use client";
 
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BarChart4, Package, Settings, ClipboardList, CookingPot } from 'lucide-react';
+import { BarChart4, Package, Settings, ClipboardList, CookingPot, Megaphone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const adminSections = [
@@ -17,6 +18,12 @@ const adminSections = [
     description: 'Add, edit, or remove menu items.',
     href: '/admin/menu',
     icon: Package,
+  },
+  {
+    title: 'Deals & Discounts',
+    description: 'Create and manage promotional deals.',
+    href: '/admin/deals',
+    icon: Megaphone,
   },
   {
     title: 'Restaurant Settings',

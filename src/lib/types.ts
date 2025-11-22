@@ -22,6 +22,14 @@ export type MenuItem = {
   imageUrl: string;
 };
 
+export type Deal = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+};
+
 export type CartItem = MenuItem & {
   quantity: number;
 };

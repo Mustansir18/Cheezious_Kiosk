@@ -1,26 +1,98 @@
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { CheeziousLogo } from '@/components/icons/CheeziousLogo';
-import { LogIn } from 'lucide-react';
+
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { CheeziousLogo } from "@/components/icons/CheeziousLogo";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Card, CardContent } from "@/components/ui/card";
+import { useDeals } from "@/context/DealsContext";
+import Autoplay from "embla-carousel-autoplay";
+import { Loader } from "lucide-react";
 
 export default function Home() {
-  // Redirect immediately to the default branch page
-  redirect('/branch/rssu');
+  const { deals, isLoading } = useDeals();
 
-  // This part of the component will not be rendered due to the redirect,
-  // but it's kept here as a fallback and for structural reference.
   return (
-    <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="flex flex-col items-center space-y-4 text-center">
+    <main className="flex min-h-screen flex-col">
+      <div className="container mx-auto flex flex-col items-center justify-center p-4 text-center flex-grow">
         <CheeziousLogo className="h-24 w-auto text-primary" />
-        <h1 className="font-headline text-4xl font-bold tracking-tight text-primary md:text-5xl">
+        <h1 className="font-headline text-4xl font-bold tracking-tight text-primary md:text-5xl mt-4">
           Welcome to Cheezious Connect
         </h1>
-        <p className="max-w-xl text-lg text-muted-foreground">
-          Your seamless digital dining experience starts here. Redirecting to our branch...
+        <p className="max-w-xl text-lg text-muted-foreground mt-2">
+          Your seamless digital dining experience starts here.
         </p>
+        <Button asChild size="lg" className="mt-6">
+          <Link href="/branch/rssu">Start Your Order</Link>
+        </Button>
       </div>
+
+      <section className="w-full py-12 bg-muted/40">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold font-headline text-center mb-8">Today's Hottest Deals</h2>
+          {isLoading ? (
+            <div className="flex items-center justify-center h-64">
+                <Loader className="h-12 w-12 animate-spin text-primary" />
+            </div>
+          ) : deals.length > 0 ? (
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              plugins={[
+                Autoplay({
+                  delay: 4000,
+                  stopOnInteraction: true,
+                }),
+              ]}
+              className="w-full"
+            >
+              <CarouselContent>
+                {deals.map((deal) => (
+                  <CarouselItem key={deal.id} className="md:basis-1/2 lg:basis-1/3">
+                    <div className="p-1">
+                      <Card className="overflow-hidden">
+                        <CardContent className="relative flex aspect-video items-center justify-center p-0">
+                          <Image
+                            src={deal.imageUrl}
+                            alt={deal.name}
+                            fill
+                            className="object-cover"
+                          />
+                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                           <div className="absolute bottom-0 left-0 p-4 text-white">
+                                <h3 className="text-xl font-bold font-headline">{deal.name}</h3>
+                                <p className="text-sm">{deal.description}</p>
+                                <p className="text-lg font-bold mt-2">RS {deal.price.toFixed(2)}</p>
+                           </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden sm:flex" />
+              <CarouselNext className="hidden sm:flex" />
+            </Carousel>
+          ) : (
+             <div className="text-center text-muted-foreground">
+                <p>No special deals available at the moment. Please check back later!</p>
+                <Button asChild variant="link">
+                    <Link href="/admin/deals">Add a Deal</Link>
+                </Button>
+             </div>
+          )}
+        </div>
+      </section>
     </main>
   );
 }
