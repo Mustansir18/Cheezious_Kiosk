@@ -6,10 +6,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { BarChart4, Package, Settings, Users, Megaphone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useEffect } from 'react';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const { user } = useAuth();
+
+  useEffect(() => {
+    // If user is a branch admin, redirect them directly to the reporting page
+    if (user?.role === 'admin') {
+      router.replace('/admin/reporting');
+    }
+  }, [user, router]);
+
 
   const adminSections = [
     {
@@ -17,34 +26,51 @@ export default function AdminDashboardPage() {
       description: 'View sales analytics and trends.',
       href: '/admin/reporting',
       icon: BarChart4,
+      role: ['root', 'admin'],
     },
     {
       title: 'Menu Management',
       description: 'Add, edit, or remove menu items.',
       href: '/admin/menu',
       icon: Package,
+       role: ['root'],
     },
     {
       title: 'Deals & Discounts',
       description: 'Create and manage promotional deals.',
       href: '/admin/deals',
       icon: Megaphone,
+       role: ['root'],
     },
     {
       title: 'User Management',
       description: 'Manage admin and cashier accounts.',
       href: '/admin/users',
       icon: Users,
+       role: ['root'],
     },
     {
       title: 'Restaurant Settings',
       description: 'Manage floors, tables, and payments.',
       href: '/admin/settings',
       icon: Settings,
-      // Only root user can see this
-      hidden: user?.role !== 'root',
+      role: ['root'],
     },
   ];
+
+  const visibleSections = adminSections.filter(section => user?.role && section.role.includes(user.role));
+
+  // If the user is a branch admin, we show a loading/redirecting state.
+  if (user?.role === 'admin') {
+      return (
+          <div className="container mx-auto p-4 lg:p-8">
+            <header className="mb-8">
+                <h1 className="font-headline text-4xl font-bold">Admin Dashboard</h1>
+                <p className="text-muted-foreground">Redirecting to your dashboard...</p>
+            </header>
+          </div>
+      )
+  }
 
   return (
     <div className="container mx-auto p-4 lg:p-8">
@@ -56,7 +82,7 @@ export default function AdminDashboardPage() {
       </header>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {adminSections.filter(section => !section.hidden).map((section) => (
+        {visibleSections.map((section) => (
           <Card 
             key={section.href} 
             className="group transform cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-xl"

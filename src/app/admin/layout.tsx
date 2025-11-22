@@ -22,10 +22,23 @@ import { Button } from '@/components/ui/button';
 import { CheeziousLogo } from '@/components/icons/CheeziousLogo';
 import { useAuth } from '@/context/AuthContext';
 import { AdminRouteGuard } from '@/components/auth/AdminRouteGuard';
+import { usePathname } from 'next/navigation';
 
 
 function AdminSidebar() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+  const pathname = usePathname();
+
+  const navLinks = [
+    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, role: ['root', 'admin'] },
+    { href: '/admin/reporting', label: 'Reporting', icon: BarChart4, role: ['root', 'admin'] },
+    { href: '/admin/menu', label: 'Menu', icon: Package, role: ['root'] },
+    { href: '/admin/deals', label: 'Deals', icon: Megaphone, role: ['root'] },
+    { href: '/admin/users', label: 'Users', icon: Users, role: ['root'] },
+    { href: '/admin/settings', label: 'Settings', icon: Settings, role: ['root'] },
+  ];
+
+  const visibleLinks = navLinks.filter(link => user?.role && link.role.includes(user.role));
   
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -37,68 +50,27 @@ function AdminSidebar() {
           <CheeziousLogo className="h-5 w-5 transition-all group-hover:scale-110" />
           <span className="sr-only">Cheezious</span>
         </Link>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link href="/admin">
-              <Button variant="outline" size="icon" aria-label="Dashboard">
-                <LayoutDashboard className="h-5 w-5" />
-              </Button>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Dashboard</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link href="/admin/reporting">
-              <Button variant="outline" size="icon" aria-label="Orders">
-                <BarChart4 className="h-5 w-5" />
-              </Button>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Reporting</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link href="/admin/menu">
-              <Button variant="outline" size="icon" aria-label="Menu">
-                <Package className="h-5 w-5" />
-              </Button>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Menu</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link href="/admin/deals">
-              <Button variant="outline" size="icon" aria-label="Deals">
-                <Megaphone className="h-5 w-5" />
-              </Button>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Deals</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link href="/admin/users">
-              <Button variant="outline" size="icon" aria-label="Users">
-                <Users className="h-5 w-5" />
-              </Button>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Users</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link href="/admin/settings">
-              <Button variant="outline" size="icon" aria-label="Settings">
-                <Settings className="h-5 w-5" />
-              </Button>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Settings</TooltipContent>
-        </Tooltip>
+        <TooltipProvider>
+            {visibleLinks.map(link => (
+                 <Tooltip key={link.href}>
+                    <TooltipTrigger asChild>
+                        <Link href={link.href}>
+                        <Button 
+                            variant={pathname === link.href ? 'default' : 'outline'} 
+                            size="icon" 
+                            aria-label={link.label}
+                        >
+                            <link.icon className="h-5 w-5" />
+                        </Button>
+                        </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">{link.label}</TooltipContent>
+                 </Tooltip>
+            ))}
+        </TooltipProvider>
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
+        <TooltipProvider>
          <Tooltip>
             <TooltipTrigger asChild>
                 <Button variant="outline" size="icon" aria-label="Logout" onClick={logout}>
@@ -117,6 +89,7 @@ function AdminSidebar() {
           </TooltipTrigger>
           <TooltipContent side="right">Back to App</TooltipContent>
         </Tooltip>
+        </TooltipProvider>
       </nav>
     </aside>
   );
@@ -130,7 +103,6 @@ export default function AdminLayout({
 }) {
   return (
     <AdminRouteGuard>
-      <TooltipProvider>
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
           <AdminSidebar />
           <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
@@ -139,7 +111,6 @@ export default function AdminLayout({
             </main>
           </div>
         </div>
-      </TooltipProvider>
     </AdminRouteGuard>
   );
 }
