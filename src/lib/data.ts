@@ -1,3 +1,4 @@
+
 import type { Branch, MenuItem } from './types';
 import branchesData from '@/config/branches.json';
 
@@ -63,58 +64,12 @@ export const menuItems: MenuItem[] = [
     category: 'Pizzas',
     imageId: 'pizza-large',
   },
-
-  // Starters (Example items, as not in deals image)
-  {
-    id: 'starter-1',
-    name: 'Cheezy Sticks',
-    description: '4 Pcs of bread stuffed with cheese.',
-    price: 550,
-    category: 'Starters',
-    imageId: 'side-1',
-  },
-  {
-    id: 'starter-2',
-    name: 'Oven Baked Wings',
-    description: '6 Pcs of delicious oven baked wings tossed in sauce of your choice.',
-    price: 490,
-    category: 'Starters',
-    imageId: 'deal-2',
-  },
-
-  // Burgers (Example items, as not in deals image)
-  {
-    id: 'b1',
-    name: 'Zinger Burger',
-    description: 'Crispy chicken fillet, tangy mayo, and fresh lettuce in a soft bun.',
-    price: 490,
-    category: 'Burgers',
-    imageId: 'burger-2',
-  },
-  {
-    id: 'b2',
-    name: 'Patty Burger',
-    description: 'A juicy chicken patty grilled to perfection, topped with our secret sauce.',
-    price: 390,
-    category: 'Burgers',
-    imageId: 'burger-1',
-  },
-  
-  // Sides (Example item)
-  {
-    id: 's1',
-    name: 'French Fries',
-    description: 'Crispy golden fries served with our special dip sauce.',
-    price: 350,
-    category: 'Sides',
-    imageId: 'side-1',
-  },
   
   // Drinks from image
   {
     id: 'd1',
     name: 'Regular Soft Drink',
-    description: 'A regular-sized soft drink.',
+    description: 'A regular-sized soft drink (345ml).',
     price: 100,
     category: 'Drinks',
     imageId: 'drink-1',

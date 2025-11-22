@@ -1,105 +1,87 @@
 {
   "placeholderImages": [
     {
-      "id": "pizza-1",
-      "description": "A delicious cheese pizza",
-      "imageUrl": "https://images.unsplash.com/photo-1520201163981-8cc95007dd2a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjaGVlc2UlMjBwaXp6YXxlbnwwfHx8fDE3NjM2NTY2MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "cheese pizza"
+      "id": "pizza-small",
+      "description": "A personal-sized pizza served with a single soft drink.",
+      "imageUrl": "https://images.unsplash.com/photo-1758982126977-168e00f33230?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwaXp6YSUyMG1lYWx8ZW58MHx8fHwxNzYzODM1NTExfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pizza meal"
     },
     {
-      "id": "pizza-2",
-      "description": "A pepperoni pizza",
-      "imageUrl": "https://images.unsplash.com/photo-1609795829951-325b91a41471?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwZXBwZXJvbmklMjBwaXp6YXxlbnwwfHx8fDE3NjM2NzQxMjh8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "pepperoni pizza"
+      "id": "pizza-regular",
+      "description": "A medium pizza served with two soft drinks.",
+      "imageUrl": "https://images.unsplash.com/photo-1572829329047-dce11ac5aaab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwaXp6YSUyMG1lYWx8ZW58MHx8fHwxNzYzODM1NTExfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pizza meal"
     },
     {
-      "id": "pizza-3",
-      "description": "A vegetable pizza",
-      "imageUrl": "https://images.unsplash.com/photo-1730929851365-015a0b62ae5b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx2ZWdldGFibGUlMjBwaXp6YXxlbnwwfHx8fDE3NjM3MjY3NDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "vegetable pizza"
+      "id": "pizza-large",
+      "description": "A large pizza served with a 1-liter bottle of soda.",
+      "imageUrl": "https://images.unsplash.com/photo-1572829329047-dce11ac5aaab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwaXp6YSUyMG1lYWx8ZW58MHx8fHwxNzYzODM1NTExfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pizza meal"
     },
     {
       "id": "burger-1",
       "description": "A classic beef burger",
-      "imageUrl": "https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxiZWVmJTIwYnVyZ2VyfGVufDB8fHx8MTc2Mzc1NTQ2Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1499028344343-cd173ffc68a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxiZWVmJTIwYnVyZ2VyfGVufDB8fHx8MTc2Mzc1NTQ2Mnww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "beef burger"
     },
     {
       "id": "burger-2",
-      "description": "A chicken burger",
-      "imageUrl": "https://images.unsplash.com/photo-1637710847214-f91d99669e18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjaGlja2VuJTIwYnVyZ2VyfGVufDB8fHx8MTc2Mzc1NTQ2Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "description": "A crispy chicken burger",
+      "imageUrl": "https://images.unsplash.com/photo-1613985216255-a26ecf1df4a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y2hpY2tlbiUyMGJ1cmdlcnxlbnwwfHx8fDE3NjM3NTU0NjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "chicken burger"
     },
     {
       "id": "side-1",
       "description": "A serving of french fries",
-      "imageUrl": "https://images.unsplash.com/photo-1518013431117-eb1465fa5752?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmcmVuY2glMjBmcmllc3xlbnwwfHx8fDE3NjM2NDgwMzR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1606755456206-b25206cde27e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmcmVuY2glMjBmcmllc3xlbnwwfHx8fDE3NjM3NjM1MzR8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "french fries"
     },
     {
       "id": "drink-1",
-      "description": "A glass of cola",
-      "imageUrl": "https://images.unsplash.com/photo-1640751819565-260a39de71f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjb2xhJTIwZHJpbmt8ZW58MHx8fHwxNzYzNzU1NDYyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "description": "A glass of cola with ice.",
+      "imageUrl": "https://images.unsplash.com/photo-1591284235428-95d94fe5f4a0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjb2xhJTIwZHJpbmt8ZW58MHx8fHwxNzYzNzU1NDYyfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "cola drink"
     },
     {
       "id": "drink-2",
-      "description": "A bottle of water",
+      "description": "A small bottle of mineral water.",
       "imageUrl": "https://images.unsplash.com/photo-1566985415436-002cccb73558?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxib3R0bGVkJTIwd2F0ZXJ8ZW58MHx8fHwxNzYzNzU1NDYyfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "bottled water"
     },
     {
       "id": "deal-1",
-      "description": "Burger combo with fries and drinks",
-      "imageUrl": "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxidXJnZXIlMjBjb21ib3xlbnwwfHx8fDE3NjM4MzQ1NjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "description": "Two burgers with fries and two drinks.",
+      "imageUrl": "https://images.unsplash.com/photo-1609446605707-fb3732c2dbdc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxidXJnZXIlMjBjb21ib3xlbnwwfHx8fDE3NjM4MzQ1NjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "burger combo"
     },
     {
       "id": "deal-2",
-      "description": "Burger and chicken combo with fries and drinks",
-      "imageUrl": "https://images.unsplash.com/photo-1589983295844-c846e51fe2ea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxidXJnZXIlMjBjaGlja2VufGVufDB8fHx8MTc2MzgzNDU2NXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "burger chicken"
+      "description": "Two burgers, fried chicken, fries, and drinks.",
+      "imageUrl": "https://images.unsplash.com/photo-1608872689366-4cbcf0c7e72c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjaGlja2VuJTIwY29tYm98ZW58MHx8fHwxNzYzODM1NTExfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "chicken combo"
     },
     {
       "id": "deal-3",
-      "description": "Three burger combo with fries and drink",
-      "imageUrl": "https://images.unsplash.com/photo-1649008695119-b4b748399675?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxidXJnZXIlMjBjb21ib3xlbnwwfHx8fDE3NjM4MzQ1NjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "burger combo"
+      "description": "Three burgers with a large portion of fries and a large drink.",
+      "imageUrl": "https://images.unsplash.com/photo-1533777419517-3e4017e2e15a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmYW1pbHklMjBtZWFsfGVufDB8fHx8MTc2Mzc2NjcxMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "family meal"
     },
     {
       "id": "deal-4",
-      "description": "Three burger and chicken combo",
-      "imageUrl": "https://images.unsplash.com/photo-1623259838743-9f1e884fba59?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxidXJnZXIlMjBjaGlja2VufGVufDB8fHx8MTc2MzgzNDU2NXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "burger chicken"
-    },
-    {
-      "id": "pizza-small",
-      "description": "Small pizza with a drink",
-      "imageUrl": "https://images.unsplash.com/photo-1694718956362-ff4f13bebfb2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwaXp6YSUyMGRyaW5rfGVufDB8fHx8MTc2MzgzNDU2NXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "pizza drink"
-    },
-    {
-      "id": "pizza-regular",
-      "description": "Regular pizza with two drinks",
-      "imageUrl": "https://images.unsplash.com/photo-1694718945753-0c0353ad5ebf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwaXp6YSUyMGRyaW5rfGVufDB8fHx8MTc2MzgzNDU2NXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "pizza drink"
-    },
-    {
-      "id": "pizza-large",
-      "description": "Large pizza with a liter drink",
-      "imageUrl": "https://images.unsplash.com/photo-1694718966166-0adbdd053413?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwaXp6YSUyMGRyaW5rfGVufDB8fHx8MTc2MzgzNDU2NXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "pizza drink"
+      "description": "Three burgers with three pieces of fried chicken and a large drink.",
+      "imageUrl": "https://images.unsplash.com/photo-1576867757603-05b134ebc379?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxmYW1pbHklMjBtZWFsfGVufDB8fHx8MTc2Mzc2NjcxMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "family meal"
     },
     {
       "id": "drink-liter",
-      "description": "A liter bottle of soda",
-      "imageUrl": "https://images.unsplash.com/photo-1711010345177-098657cab2da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzb2RhJTIwYm90dGxlfGVufDB8fHx8MTc2MzgzNDU2NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "description": "A 1-liter or 1.5-liter bottle of soda.",
+      "imageUrl": "https://images.unsplash.com/photo-1613683261866-5c53a33d2ad7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c29kYSUyMGJvdHRsZXxlbnwwfHx8fDE3NjM4MzQ1NjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "soda bottle"
     },
     {
       "id": "juice-small",
-      "description": "A small carton of juice",
-      "imageUrl": "https://images.unsplash.com/photo-1758578400128-0b09ebb0ca80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxqdWljZSUyMGNhcnRvbnxlbnwwfHx8fDE3NjM3NDE2MDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "description": "A small carton of fruit juice.",
+      "imageUrl": "https://images.unsplash.com/photo-1611807527311-a6f0ffaf5138?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxqdWljZSUyMGNhcnRvbnxlbnwwfHx8fDE3NjM3NDE2MDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "juice carton"
     }
   ]
