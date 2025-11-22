@@ -8,11 +8,14 @@ import { menuItems } from "@/lib/data";
 import type { OrderType } from "@/lib/types";
 import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Pizza, GlassWater, Award } from 'lucide-react';
+import { Pizza, Sparkles, Sandwich, Drumstick, Star, GlassWater } from 'lucide-react';
 
 const categoryIcons: { [key: string]: React.ReactNode } = {
-  Deals: <Award className="mr-2 h-5 w-5" />,
+  Starters: <Star className="mr-2 h-5 w-5" />,
   Pizzas: <Pizza className="mr-2 h-5 w-5" />,
+  'Cheezy & Crispy': <Sandwich className="mr-2 h-5 w-5" />,
+  'Bazinga!': <Sparkles className="mr-2 h-5 w-5" />,
+  'Side Orders': <Drumstick className="mr-2 h-5 w-5" />,
   Drinks: <GlassWater className="mr-2 h-5 w-5" />,
 };
 
@@ -27,7 +30,7 @@ export default function MenuPage({ params: { branchId } }: { params: { branchId:
     }
   }, [searchParams, branchId, setOrderDetails]);
 
-  const categories = Array.from(new Set(menuItems.map(item => item.category)));
+  const categories = [ "Starters", "Pizzas", "Cheezy & Crispy", "Bazinga!", "Side Orders", "Drinks" ];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -37,9 +40,9 @@ export default function MenuPage({ params: { branchId } }: { params: { branchId:
       </div>
 
       <Tabs defaultValue={categories[0]} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-3 h-auto">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 h-auto">
           {categories.map((category) => (
-            <TabsTrigger key={category} value={category} className="py-2 text-base">
+            <TabsTrigger key={category} value={category} className="py-2 text-base flex-wrap">
                {categoryIcons[category]} {category}
             </TabsTrigger>
           ))}
