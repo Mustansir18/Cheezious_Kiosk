@@ -4,52 +4,17 @@ export function CheeziousLogo(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 100 100"
+      viewBox="0 0 300 60"
       aria-label="Cheezious Logo"
       {...props}
     >
-      {/* Background Circle */}
-      <circle cx="50" cy="50" r="48" fill="hsl(var(--primary))" stroke="hsl(var(--primary-foreground))" strokeWidth="2" />
-
-      {/* Pizza Slice */}
-      <path 
-        d="M 50 15 L 75 68 L 25 68 Z" 
-        fill="#FFFFFF" 
-        stroke="#E6A23C"
-        strokeWidth="2.5"
-        strokeLinejoin="round"
+      <image 
+        href="data:image/png;base64,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"
+        width="300"
+        height="60"
+        x="0"
+        y="0"
       />
-      {/* Pepperonis */}
-      <circle cx="42" cy="55" r="5" fill="#D9534F" />
-      <circle cx="58" cy="55" r="5" fill="#D9534F" />
-      <circle cx="50" cy="35" r="6" fill="#D9534F" />
-      
-      {/* Burger Layers */}
-      {/* Bottom Bun */}
-      <path d="M 30 85 H 70 C 75 85 75 80 70 80 H 30 C 25 80 25 85 30 85 Z" fill="#D2A679"/>
-      {/* Patty */}
-      <rect x="32" y="75" width="36" height="5" rx="2" fill="#8B4513"/>
-      {/* Cheese */}
-      <path d="M 31 75 L 69 75 L 67 72 H 33 Z" fill="#FFD700"/>
-       {/* Top Bun */}
-      <path d="M 50 60 C 65 60 72 72 70 72 H 30 C 28 72 35 60 50 60 Z" fill="#F0C47F"/>
-       {/* Sesame seeds */}
-      <circle cx="45" cy="66" r="1" fill="#FFFFFF" />
-      <circle cx="55" cy="66" r="1" fill="#FFFFFF" />
-      <circle cx="50" cy="62" r="1" fill="#FFFFFF" />
-      
-      <text
-        x="50%"
-        y="92%"
-        textAnchor="middle"
-        fontWeight="bold"
-        fontSize="12"
-        fill="hsl(var(--primary-foreground))"
-        fontFamily="Poppins, sans-serif"
-      >
-        CHEEZIOUS
-      </text>
-
     </svg>
   );
 }
