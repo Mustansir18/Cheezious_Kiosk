@@ -95,10 +95,6 @@ export default function ReportingPage() {
     };
   }, [orders]);
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -151,7 +147,7 @@ export default function ReportingPage() {
             <h1 className="font-headline text-4xl font-bold">Admin Reports</h1>
             <p className="text-muted-foreground">Sales data from the current session.</p>
         </div>
-        <Button onClick={handlePrint}>
+        <Button onClick={() => window.print()}>
             <Printer className="mr-2 h-4 w-4" />
             Print Report
         </Button>
