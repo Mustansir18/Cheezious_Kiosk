@@ -1,12 +1,23 @@
+
 "use client";
 
 import { useOrders } from "@/context/OrderContext";
 import { useMemo } from "react";
 import type { Order, OrderItem } from "@/lib/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, ShoppingCart, DollarSign, Utensils, Loader } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  BarChart,
+  ShoppingCart,
+  DollarSign,
+  Utensils,
+  Loader,
+  Printer,
+  CreditCard,
+  ShoppingBag,
+} from "lucide-react";
 import { HourlySalesReport } from "@/components/reporting/HourlySalesReport";
 import { TopSellingItems } from "@/components/reporting/TopSellingItems";
+import { Button } from "@/components/ui/button";
 
 export interface ItemSale {
   name: string;
@@ -35,6 +46,9 @@ export default function ReportingPage() {
 
     const itemSales: { [key: string]: ItemSale } = {};
     const hourlySales: { [key: number]: number } = {};
+    const dineInOrders = orders.filter((o) => o.orderType === "Dine-In");
+    const takeAwayOrders = orders.filter((o) => o.orderType === "Take-Away");
+    const paymentMethodCounts: { [key: string]: number } = {};
 
     for (const order of orders) {
       const hour = new Date(order.orderDate).getHours();
@@ -50,6 +64,10 @@ export default function ReportingPage() {
         }
         itemSales[item.menuItemId].quantity += item.quantity;
         itemSales[item.menuItemId].totalRevenue += item.quantity * item.itemPrice;
+      }
+      
+      if (order.orderType === 'Dine-In' && order.paymentMethod) {
+          paymentMethodCounts[order.paymentMethod] = (paymentMethodCounts[order.paymentMethod] || 0) + 1;
       }
     }
 
@@ -71,8 +89,15 @@ export default function ReportingPage() {
       totalItemsSold,
       topSellingItems,
       hourlySalesChartData,
+      dineInCount: dineInOrders.length,
+      takeAwayCount: takeAwayOrders.length,
+      paymentMethodCounts,
     };
   }, [orders]);
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   if (isLoading) {
     return (
@@ -106,22 +131,33 @@ export default function ReportingPage() {
     totalItemsSold,
     topSellingItems,
     hourlySalesChartData,
+    dineInCount,
+    takeAwayCount,
+    paymentMethodCounts,
   } = reportData;
 
   const summaryCards = [
     { title: "Total Sales", value: `RS ${totalSales.toFixed(2)}`, icon: DollarSign },
     { title: "Total Orders", value: totalOrders, icon: ShoppingCart },
     { title: "Total Items Sold", value: totalItemsSold, icon: Utensils },
+    { title: "Dine-In Orders", value: dineInCount, icon: Utensils },
+    { title: "Take Away Orders", value: takeAwayCount, icon: ShoppingBag },
   ];
 
   return (
-    <div className="container mx-auto p-4 lg:p-8">
-      <header className="mb-8">
-        <h1 className="font-headline text-4xl font-bold">Admin Reports</h1>
-        <p className="text-muted-foreground">Sales data from the current session.</p>
+    <div className="container mx-auto p-4 lg:p-8 print:p-0">
+      <header className="mb-8 flex justify-between items-start print:hidden">
+        <div>
+            <h1 className="font-headline text-4xl font-bold">Admin Reports</h1>
+            <p className="text-muted-foreground">Sales data from the current session.</p>
+        </div>
+        <Button onClick={handlePrint}>
+            <Printer className="mr-2 h-4 w-4" />
+            Print Report
+        </Button>
       </header>
       
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-8">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-5 mb-8">
         {summaryCards.map(card => (
             <Card key={card.title}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -134,6 +170,29 @@ export default function ReportingPage() {
             </Card>
         ))}
       </div>
+      
+       <div className="mb-8">
+        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline flex items-center"><CreditCard className="mr-2 h-5 w-5 text-primary"/>Payment Method Breakdown (Dine-In)</CardTitle>
+                <CardDescription>Number of dine-in orders per payment method.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {Object.keys(paymentMethodCounts).length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {Object.entries(paymentMethodCounts).map(([method, count]) => (
+                             <div key={method} className="bg-muted/50 p-4 rounded-lg">
+                                <p className="text-sm font-medium text-muted-foreground">{method}</p>
+                                <p className="text-2xl font-bold">{count}</p>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-muted-foreground">No dine-in orders with a payment method recorded yet.</p>
+                )}
+            </CardContent>
+        </Card>
+       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         <div className="lg:col-span-3">
@@ -143,7 +202,6 @@ export default function ReportingPage() {
             <TopSellingItems data={topSellingItems} />
         </div>
       </div>
-
     </div>
   );
 }
