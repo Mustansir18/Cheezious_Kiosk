@@ -7,10 +7,12 @@ interface CartContextType {
   items: CartItem[];
   branchId: string | null;
   orderType: OrderType | null;
+  tableId: string | null;
+  floorId: string | null;
   addItem: (item: MenuItem) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
-  setOrderDetails: (details: { branchId: string; orderType: OrderType }) => void;
+  setOrderDetails: (details: { branchId: string; orderType: OrderType; floorId?: string; tableId?: string; }) => void;
   cartCount: number;
   cartTotal: number;
 }
@@ -21,15 +23,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [branchId, setBranchId] = useState<string | null>(null);
   const [orderType, setOrderType] = useState<OrderType | null>(null);
+  const [tableId, setTableId] = useState<string | null>(null);
+  const [floorId, setFloorId] = useState<string | null>(null);
 
   useEffect(() => {
     try {
       const storedCart = sessionStorage.getItem('cheeziousCart');
       if (storedCart) {
-        const { items, branchId, orderType } = JSON.parse(storedCart);
+        const { items, branchId, orderType, floorId, tableId } = JSON.parse(storedCart);
         setItems(items || []);
         setBranchId(branchId || null);
         setOrderType(orderType || null);
+        setFloorId(floorId || null);
+        setTableId(tableId || null);
       }
     } catch (error) {
       console.error("Could not load cart from session storage", error);
@@ -38,16 +44,23 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     try {
-      const cartState = JSON.stringify({ items, branchId, orderType });
+      const cartState = JSON.stringify({ items, branchId, orderType, floorId, tableId });
       sessionStorage.setItem('cheeziousCart', cartState);
     } catch (error) {
       console.error("Could not save cart to session storage", error);
     }
-  }, [items, branchId, orderType]);
+  }, [items, branchId, orderType, floorId, tableId]);
 
-  const setOrderDetails = (details: { branchId: string; orderType: OrderType }) => {
+  const setOrderDetails = (details: { branchId: string; orderType: OrderType; floorId?: string; tableId?: string; }) => {
     setBranchId(details.branchId);
     setOrderType(details.orderType);
+    if (details.orderType === 'Dine-In') {
+        setFloorId(details.floorId || null);
+        setTableId(details.tableId || null);
+    } else {
+        setFloorId(null);
+        setTableId(null);
+    }
   };
 
   const addItem = (itemToAdd: MenuItem) => {
@@ -75,6 +88,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = () => {
     setItems([]);
+    setTableId(null);
+    setFloorId(null);
   };
 
   const cartCount = items.reduce((count, item) => count + item.quantity, 0);
@@ -86,6 +101,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         items,
         branchId,
         orderType,
+        tableId,
+        floorId,
         addItem,
         updateQuantity,
         clearCart,

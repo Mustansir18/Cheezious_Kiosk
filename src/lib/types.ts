@@ -36,6 +36,10 @@ export type Order = {
     status: OrderStatus;
     totalAmount: number;
     items: OrderItem[];
+    // New fields for dine-in orders
+    floorId?: string;
+    tableId?: string;
+    paymentMethod?: string;
 };
 
 export type OrderItem = {
@@ -53,7 +57,26 @@ export type PlacedOrder = {
     total: number;
     branchName: string;
     orderType: OrderType;
+    tableName?: string;
 };
+
+
+// --- Admin Settings Types ---
+export type Floor = {
+    id: string;
+    name: string;
+}
+
+export type Table = {
+    id: string;
+    name: string;
+    floorId: string;
+}
+
+export type PaymentMethod = {
+    id: string;
+    name: string;
+}
 
 // --- Types for External System Sync ---
 
@@ -70,11 +93,15 @@ export const SyncOrderInputSchema = z.object({
   id: z.string().describe('The unique identifier for the order.'),
   branchId: z.string().describe('The identifier for the branch where the order was placed.'),
   orderDate: z.string().describe('The ISO 8601 timestamp when the order was placed.'),
-  orderType: z.enum(['Dine-In', 'Take-Away']).describe('The type of order.'),
+  orderType: z.enum(['Dine-In', 'Take Away']).describe('The type of order.'),
   status: z.string().describe('The current status of the order (e.g., "Pending").'),
   totalAmount: z.number().describe('The total cost of the order.'),
   orderNumber: z.string().describe('The human-readable order number.'),
   items: z.array(OrderItemSyncSchema).describe('An array of items included in the order.'),
+  // Optional fields for dine-in
+  floorId: z.string().optional().describe('The identifier for the floor.'),
+  tableId: z.string().optional().describe('The identifier for the table.'),
+  paymentMethod: z.string().optional().describe('The selected payment method.'),
 });
 export type SyncOrderInput = z.infer<typeof SyncOrderInputSchema>;
 

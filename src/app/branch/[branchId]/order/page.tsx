@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
@@ -14,13 +15,22 @@ import type { PlacedOrder, Order, OrderItem } from "@/lib/types";
 import { syncOrderToExternalSystem } from "@/ai/flows/sync-order-flow";
 import { useOrders } from "@/context/OrderContext";
 import { useToast } from "@/hooks/use-toast";
+import { useSettings } from "@/context/SettingsContext";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useMemo } from "react";
 
 
 export default function OrderConfirmationPage() {
-  const { items, cartTotal, branchId, orderType, clearCart } = useCart();
+  const { items, cartTotal, branchId, orderType, floorId, tableId, clearCart } = useCart();
   const { addOrder } = useOrders();
+  const { settings } = useSettings();
   const router = useRouter();
   const { toast } = useToast();
+  const [paymentMethod, setPaymentMethod] = useState<string>('');
+
+  const branch = useMemo(() => branches.find((b) => b.id === branchId), [branchId]);
+  const table = useMemo(() => settings.tables.find(t => t.id === tableId), [settings.tables, tableId]);
 
   if (!branchId || !orderType) {
     return (
@@ -34,10 +44,16 @@ export default function OrderConfirmationPage() {
     );
   }
   
-  const branch = branches.find((b) => b.id === branchId);
-
   const handleConfirmOrder = async () => {
     if (!branchId || !orderType) return;
+    if (orderType === 'Dine-In' && !paymentMethod) {
+        toast({
+            variant: "destructive",
+            title: "Payment Method Required",
+            description: "Please select a payment method to continue.",
+        });
+        return;
+    }
 
     const orderId = crypto.randomUUID();
     const orderNumber = `${branchId.slice(0,3).toUpperCase()}-${Date.now().toString().slice(-6)}`;
@@ -59,18 +75,12 @@ export default function OrderConfirmationPage() {
         totalAmount: cartTotal,
         orderNumber,
         items: orderItems,
+        ...(orderType === 'Dine-In' && { floorId, tableId, paymentMethod }),
     };
     
     // Asynchronously sync the order to the external system.
-    // We don't need to await this; it can happen in the background.
     syncOrderToExternalSystem({
-        id: newOrder.id,
-        branchId: newOrder.branchId,
-        orderDate: newOrder.orderDate,
-        orderType: newOrder.orderType,
-        status: newOrder.status,
-        totalAmount: newOrder.totalAmount,
-        orderNumber: newOrder.orderNumber,
+        ...newOrder,
         items: newOrder.items.map(item => ({
             menuItemId: item.menuItemId,
             name: item.name,
@@ -79,8 +89,6 @@ export default function OrderConfirmationPage() {
         }))
     }).then(result => {
         if (!result.success) {
-            // If syncing fails, show a toast to the user.
-            // This is a non-blocking error.
             toast({
                 variant: "destructive",
                 title: "Sync Failed",
@@ -97,6 +105,7 @@ export default function OrderConfirmationPage() {
         total: cartTotal,
         branchName: branch!.name,
         orderType,
+        ...(table && { tableName: table.name }),
     };
 
     sessionStorage.setItem('placedOrder', JSON.stringify(placedOrder));
@@ -119,6 +128,9 @@ export default function OrderConfirmationPage() {
             <div className="rounded-lg border p-4">
                 <p><strong>Branch:</strong> {branch?.name}</p>
                 <p><strong>Order Type:</strong> {orderType}</p>
+                {orderType === 'Dine-In' && table && (
+                    <p><strong>Table:</strong> {table.name}</p>
+                )}
             </div>
 
             {items.map((item, index) => (
@@ -145,6 +157,25 @@ export default function OrderConfirmationPage() {
               </div>
             ))}
             <Separator />
+
+            {orderType === 'Dine-In' && (
+                <div className="grid gap-2 pt-4">
+                    <Label htmlFor="payment-method">Payment Method</Label>
+                    <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                        <SelectTrigger id="payment-method">
+                            <SelectValue placeholder="Select a payment method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {settings.paymentMethods.map(method => (
+                                <SelectItem key={method.id} value={method.name}>
+                                    {method.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
+
             <div className="flex justify-between pt-4 text-xl font-bold">
               <span>Total</span>
               <span>${cartTotal.toFixed(2)}</span>
@@ -159,6 +190,7 @@ export default function OrderConfirmationPage() {
             onClick={handleConfirmOrder}
             className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90"
             size="lg"
+            disabled={items.length === 0}
           >
             Place Order
           </Button>

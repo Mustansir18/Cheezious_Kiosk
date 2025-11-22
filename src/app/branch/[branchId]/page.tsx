@@ -16,7 +16,7 @@ export default function ModeSelectionPage({ params }: { params: { branchId: stri
       </p>
 
       <div className="mt-10 grid w-full max-w-2xl grid-cols-1 gap-8 md:grid-cols-2">
-        <Link href={`/branch/${params.branchId}/menu?mode=Dine-In`}>
+        <Link href={`/branch/${params.branchId}/table-selection`}>
           <Card className="transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
             <CardHeader>
               <Utensils className="mx-auto h-16 w-16 text-primary" />

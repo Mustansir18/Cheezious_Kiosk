@@ -15,8 +15,9 @@ import { Separator } from "@/components/ui/separator";
 import { formatDistanceToNow } from "date-fns";
 import { Skeleton } from "../ui/skeleton";
 import { ScrollArea } from "../ui/scroll-area";
-import { Utensils, ShoppingBag, Check, CheckCircle, CookingPot, Loader } from "lucide-react";
+import { Utensils, ShoppingBag, Check, CheckCircle, CookingPot, Loader, CreditCard } from "lucide-react";
 import { useMemo } from "react";
+import { useSettings } from "@/context/SettingsContext";
 
 const statusConfig = {
     Pending: { icon: Loader, color: "text-gray-500", label: "Pending" },
@@ -33,6 +34,8 @@ interface OrderCardProps {
 }
 
 export function OrderCard({ order, workflow = 'cashier', onUpdateStatus }: OrderCardProps) {
+  const { settings } = useSettings();
+  
   const handleUpdateStatus = (newStatus: OrderStatus) => {
     onUpdateStatus(order.id, newStatus);
   };
@@ -40,6 +43,8 @@ export function OrderCard({ order, workflow = 'cashier', onUpdateStatus }: Order
   const StatusIcon = statusConfig[order.status]?.icon || Loader;
 
   const orderDate = useMemo(() => new Date(order.orderDate), [order.orderDate]);
+  const table = useMemo(() => settings.tables.find(t => t.id === order.tableId), [settings.tables, order.tableId]);
+
 
   return (
     <Card className="flex h-full flex-col">
@@ -51,6 +56,7 @@ export function OrderCard({ order, workflow = 'cashier', onUpdateStatus }: Order
         <CardDescription>
           {formatDistanceToNow(orderDate, { addSuffix: true })}
         </CardDescription>
+        {table && <CardDescription>Table: <span className="font-semibold">{table.name}</span></CardDescription>}
       </CardHeader>
       <CardContent className="flex-grow">
         <ScrollArea className="h-40 pr-4">
@@ -70,6 +76,12 @@ export function OrderCard({ order, workflow = 'cashier', onUpdateStatus }: Order
             <span>Total</span>
             <span>${order.totalAmount.toFixed(2)}</span>
         </div>
+         {order.paymentMethod && (
+            <div className="flex items-center mt-2 text-sm text-muted-foreground">
+                <CreditCard className="mr-2 h-4 w-4" />
+                <span>Paid with {order.paymentMethod}</span>
+            </div>
+         )}
       </CardContent>
       <CardFooter className="flex flex-col gap-2">
          <div className="flex items-center w-full">
