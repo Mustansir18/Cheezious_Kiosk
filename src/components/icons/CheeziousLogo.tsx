@@ -8,46 +8,48 @@ export function CheeziousLogo(props: React.SVGProps<SVGSVGElement>) {
       aria-label="Cheezious Logo"
       {...props}
     >
-      <defs>
-        <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 1 }} />
-          <stop offset="100%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 0.8 }} />
-        </linearGradient>
-      </defs>
-      
+      {/* Background Circle */}
+      <circle cx="50" cy="50" r="48" fill="hsl(var(--primary))" stroke="hsl(var(--primary-foreground))" strokeWidth="2" />
+
       {/* Pizza Slice */}
       <path 
-        d="M 20 20 C 40 10, 70 15, 80 30 L 50 80 Z" 
-        fill="url(#gold-gradient)" 
-        stroke="#A0522D" 
-        strokeWidth="2"
+        d="M 50 15 L 75 68 L 25 68 Z" 
+        fill="#FFFFFF" 
+        stroke="#E6A23C"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
       />
-      <circle cx="35" cy="40" r="3" fill="#A0522D" />
-      <circle cx="55" cy="35" r="4" fill="#A0522D" />
-      <circle cx="65" cy="50" r="3" fill="#A0522D" />
-
-      {/* Burger */}
-      <path 
-        d="M 25 60 C 20 70, 30 85, 50 85 S 80 80, 75 70 L 65 55 L 35 55 Z" 
-        fill="url(#gold-gradient)" 
-        stroke="#8B4513" 
-        strokeWidth="2"
-      />
-      <path d="M 30 65 H 70" stroke="#228B22" strokeWidth="3" />
-      <path d="M 32 60 H 68" stroke="#FF6347" strokeWidth="2" />
+      {/* Pepperonis */}
+      <circle cx="42" cy="55" r="5" fill="#D9534F" />
+      <circle cx="58" cy="55" r="5" fill="#D9534F" />
+      <circle cx="50" cy="35" r="6" fill="#D9534F" />
       
-      {/* Drink */}
-      <path 
-        d="M 65 40 L 70 80 H 90 L 85 40 Z" 
-        fill="url(#gold-gradient)"
-        stroke="#8B4513"
-        strokeWidth="2"
-      />
-      <line x1="85" y1="40" x2="90" y2="20" stroke="#8B4513" strokeWidth="3" />
+      {/* Burger Layers */}
+      {/* Bottom Bun */}
+      <path d="M 30 85 H 70 C 75 85 75 80 70 80 H 30 C 25 80 25 85 30 85 Z" fill="#D2A679"/>
+      {/* Patty */}
+      <rect x="32" y="75" width="36" height="5" rx="2" fill="#8B4513"/>
+      {/* Cheese */}
+      <path d="M 31 75 L 69 75 L 67 72 H 33 Z" fill="#FFD700"/>
+       {/* Top Bun */}
+      <path d="M 50 60 C 65 60 72 72 70 72 H 30 C 28 72 35 60 50 60 Z" fill="#F0C47F"/>
+       {/* Sesame seeds */}
+      <circle cx="45" cy="66" r="1" fill="#FFFFFF" />
+      <circle cx="55" cy="66" r="1" fill="#FFFFFF" />
+      <circle cx="50" cy="62" r="1" fill="#FFFFFF" />
+      
+      <text
+        x="50%"
+        y="92%"
+        textAnchor="middle"
+        fontWeight="bold"
+        fontSize="12"
+        fill="hsl(var(--primary-foreground))"
+        fontFamily="Poppins, sans-serif"
+      >
+        CHEEZIOUS
+      </text>
 
-      {/* Swooshes */}
-      <path d="M 20 85 C 30 95, 50 95, 60 80" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-      <path d="M 80 85 C 70 95, 50 98, 40 85" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
     </svg>
   );
 }
