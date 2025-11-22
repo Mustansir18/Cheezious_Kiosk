@@ -63,6 +63,13 @@ export default function ReportingPage() {
     const dineInSales = dineInOrders.reduce((sum, order) => sum + order.totalAmount, 0);
     const takeAwaySales = takeAwayOrders.reduce((sum, order) => sum + order.totalAmount, 0);
 
+    // Detailed Dine-In Metrics
+    const dineInGrossSales = dineInOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+    const dineInNetSales = dineInOrders.reduce((sum, order) => sum + order.subtotal, 0);
+    const dineInTax = dineInOrders.reduce((sum, order) => sum + order.taxAmount, 0);
+    const dineInCashSales = dineInOrders.filter(o => o.paymentMethod === 'Cash').reduce((sum, order) => sum + order.totalAmount, 0);
+    const dineInCardSales = dineInOrders.filter(o => o.paymentMethod?.toLowerCase().includes('card')).reduce((sum, order) => sum + order.totalAmount, 0);
+
     for (const order of filteredOrders) {
       const hour = new Date(order.orderDate).getHours();
       hourlySales[hour] = (hourlySales[hour] || 0) + order.totalAmount;
@@ -107,6 +114,11 @@ export default function ReportingPage() {
       dineInSales,
       takeAwaySales,
       paymentMethodCounts,
+      dineInGrossSales,
+      dineInNetSales,
+      dineInTax,
+      dineInCashSales,
+      dineInCardSales
     };
   }, [orders, dateRange]);
 
@@ -192,6 +204,11 @@ export default function ReportingPage() {
     dineInSales,
     takeAwaySales,
     paymentMethodCounts,
+    dineInGrossSales,
+    dineInNetSales,
+    dineInTax,
+    dineInCashSales,
+    dineInCardSales,
   } = reportData;
 
   const summaryCards = [
@@ -203,6 +220,14 @@ export default function ReportingPage() {
   const orderTypeCards = [
       { title: "Dine-In Orders", value: dineInCount, icon: Utensils, description: `RS ${dineInSales.toFixed(2)} in sales`},
       { title: "Take Away Orders", value: takeAwayCount, icon: ShoppingBag, description: `RS ${takeAwaySales.toFixed(2)} in sales`},
+  ]
+
+  const dineInBreakdown = [
+      { label: "Gross Sales", value: `RS ${dineInGrossSales.toFixed(2)}` },
+      { label: "Net Sales", value: `RS ${dineInNetSales.toFixed(2)}` },
+      { label: "Total Tax", value: `RS ${dineInTax.toFixed(2)}` },
+      { label: "Cash Sales", value: `RS ${dineInCashSales.toFixed(2)}` },
+      { label: "Card Sales", value: `RS ${dineInCardSales.toFixed(2)}` },
   ]
 
   return (
@@ -285,6 +310,24 @@ export default function ReportingPage() {
             ))}
         </div>
           
+        <div id="dine-in-breakdown">
+             <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline flex items-center"><Utensils className="mr-2 h-5 w-5 text-primary"/>Dine-In Sales Breakdown</CardTitle>
+                    <CardDescription>Detailed sales figures for Dine-In orders for the selected period.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                    {dineInBreakdown.map(item => (
+                        <div key={item.label} className="rounded-lg border bg-card text-card-foreground p-4 flex flex-col items-center justify-center text-center">
+                             <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
+                             <p className="text-2xl font-bold">{item.value}</p>
+                        </div>
+                    ))}
+                </CardContent>
+             </Card>
+        </div>
+
+
           <div id="payment-report">
             <Card>
                 <CardHeader>
@@ -322,4 +365,3 @@ export default function ReportingPage() {
   );
 }
 
-    
