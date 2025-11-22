@@ -136,6 +136,11 @@ export function OrderCard({ order, workflow = 'cashier', onUpdateStatus, childre
                         <CookingPot className="mr-2 h-4 w-4" /> Accept & Prepare
                     </Button>
                 )}
+                 {order.status === 'Preparing' && (
+                    <Button onClick={() => handleUpdateStatus('Ready')} size="sm" className="w-full bg-yellow-500 hover:bg-yellow-600 text-black">
+                       <Check className="mr-2 h-4 w-4" /> Mark as Ready
+                    </Button>
+                )}
                 {order.status === 'Ready' && (
                      <Button onClick={() => handleUpdateStatus('Completed')} size="sm" className="w-full bg-green-500 hover:bg-green-600">
                         <CheckCircle className="mr-2 h-4 w-4" /> Mark as Completed
