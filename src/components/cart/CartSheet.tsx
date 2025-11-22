@@ -17,6 +17,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { UpdateQuantity } from "./UpdateQuantity";
 
+const FALLBACK_IMAGE_URL = "https://picsum.photos/seed/placeholder/400/300";
+
 export function CartSheet({ children }: { children: React.ReactNode }) {
   const { items, cartTotal, cartCount, branchId, clearCart } = useCart();
 
@@ -35,7 +37,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                   <div key={item.id}>
                     <div className="flex items-center gap-4 py-4">
                        <Image
-                        src={item.imageUrl}
+                        src={item.imageUrl || FALLBACK_IMAGE_URL}
                         alt={item.name}
                         width={64}
                         height={64}

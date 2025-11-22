@@ -9,6 +9,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { UpdateQuantity } from "@/components/cart/UpdateQuantity";
 import { PlusCircle } from "lucide-react";
 
+const FALLBACK_IMAGE_URL = "https://picsum.photos/seed/placeholder/400/300";
+
+
 export function MenuItemCard({ item }: { item: MenuItem }) {
   const { items, addItem } = useCart();
   const cartItem = items.find((i) => i.id === item.id);
@@ -18,7 +21,7 @@ export function MenuItemCard({ item }: { item: MenuItem }) {
       <CardHeader className="p-0">
         <div className="relative h-48 w-full">
           <Image
-            src={item.imageUrl}
+            src={item.imageUrl || FALLBACK_IMAGE_URL}
             alt={item.name}
             fill
             className="object-cover"
