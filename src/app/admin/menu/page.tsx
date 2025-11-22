@@ -99,11 +99,11 @@ function ItemForm({
   const [description, setDescription] = useState(item?.description || '');
   const [price, setPrice] = useState(item?.price || 0);
   const [categoryId, setCategoryId] = useState(item?.categoryId || '');
-  const [imageId, setImageId] = useState(item?.imageId || '');
+  const [imageUrl, setImageUrl] = useState(item?.imageUrl || '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const data = { name, description, price, categoryId, imageId };
+    const data = { name, description, price, categoryId, imageUrl };
     if (item) {
       onSave({ ...item, ...data });
     } else {
@@ -139,9 +139,9 @@ function ItemForm({
         </Select>
       </div>
       <div>
-        <Label htmlFor="item-image-id">Image ID</Label>
-        <Input id="item-image-id" value={imageId} onChange={(e) => setImageId(e.target.value)} placeholder="e.g., 'chicken-fajita'" required />
-        <p className="text-sm text-muted-foreground mt-1">This must match an ID in placeholder-images.json.</p>
+        <Label htmlFor="item-image-url">Image URL</Label>
+        <Input id="item-image-url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://example.com/image.png" required />
+        <p className="text-sm text-muted-foreground mt-1">Provide a direct link to the item's image.</p>
       </div>
       <DialogFooter>
         <DialogClose asChild>

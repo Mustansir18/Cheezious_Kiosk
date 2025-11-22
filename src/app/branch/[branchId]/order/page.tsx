@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -7,7 +8,6 @@ import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import Link from "next/link";
 import { branches } from "@/lib/data";
 import type { PlacedOrder, Order, OrderItem } from "@/lib/types";
@@ -112,10 +112,6 @@ export default function OrderConfirmationPage() {
     router.push("/order-status");
   };
 
-  const getImageUrl = (imageId: string) => {
-    return PlaceHolderImages.find((img) => img.id === imageId)?.imageUrl || "/placeholder.jpg";
-  };
-
   return (
     <div className="container mx-auto max-w-2xl px-4 py-12">
       <Card className="shadow-xl">
@@ -136,7 +132,7 @@ export default function OrderConfirmationPage() {
               <div key={item.id}>
                 <div className="flex items-center gap-4 py-2">
                   <Image
-                    src={getImageUrl(item.imageId)}
+                    src={item.imageUrl}
                     alt={item.name}
                     width={48}
                     height={48}

@@ -6,7 +6,6 @@ import type { MenuItem } from "@/lib/types";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { UpdateQuantity } from "@/components/cart/UpdateQuantity";
 import { PlusCircle } from "lucide-react";
 
@@ -14,21 +13,17 @@ export function MenuItemCard({ item }: { item: MenuItem }) {
   const { items, addItem } = useCart();
   const cartItem = items.find((i) => i.id === item.id);
 
-  const image = PlaceHolderImages.find((img) => img.id === item.imageId);
-  const imageUrl = image ? image.imageUrl : `https://picsum.photos/seed/${item.imageId}/400/300`;
-  const imageHint = image ? image.imageHint : "food";
-
   return (
     <Card className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-lg">
       <CardHeader className="p-0">
         <div className="relative h-48 w-full">
           <Image
-            src={imageUrl}
+            src={item.imageUrl}
             alt={item.name}
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            data-ai-hint={imageHint}
+            data-ai-hint="food meal"
           />
         </div>
       </CardHeader>

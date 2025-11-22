@@ -19,7 +19,7 @@ export type MenuItem = {
   description: string;
   price: number;
   categoryId: string;
-  imageId: string;
+  imageUrl: string;
 };
 
 export type CartItem = MenuItem & {

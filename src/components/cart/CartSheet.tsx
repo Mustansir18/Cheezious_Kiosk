@@ -15,19 +15,10 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { UpdateQuantity } from "./UpdateQuantity";
 
 export function CartSheet({ children }: { children: React.ReactNode }) {
   const { items, cartTotal, cartCount, branchId, clearCart } = useCart();
-
-  const getImageUrl = (imageId: string) => {
-    const image = PlaceHolderImages.find((img) => img.id === imageId);
-    return image ? image.imageUrl : `https://picsum.photos/seed/${imageId}/200/200`;
-  };
-  const getImageHint = (imageId: string) => {
-    return PlaceHolderImages.find((img) => img.id === imageId)?.imageHint || "food item";
-  };
 
   return (
     <Sheet>
@@ -44,12 +35,12 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                   <div key={item.id}>
                     <div className="flex items-center gap-4 py-4">
                        <Image
-                        src={getImageUrl(item.imageId)}
+                        src={item.imageUrl}
                         alt={item.name}
                         width={64}
                         height={64}
                         className="rounded-md object-cover"
-                        data-ai-hint={getImageHint(item.imageId)}
+                        data-ai-hint="food item"
                       />
                       <div className="flex-grow">
                         <p className="font-semibold">{item.name}</p>

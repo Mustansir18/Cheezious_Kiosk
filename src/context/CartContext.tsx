@@ -79,7 +79,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           item.id === itemToAdd.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      const cartItem: CartItem = { ...itemToAdd, quantity: 1 };
+      // When adding item to cart, we don't need all properties from MenuItem, only a few
+      const cartItem: CartItem = { 
+        id: itemToAdd.id,
+        name: itemToAdd.name,
+        price: itemToAdd.price,
+        imageUrl: itemToAdd.imageUrl,
+        categoryId: itemToAdd.categoryId,
+        description: itemToAdd.description,
+        quantity: 1 
+      };
       return [...prevItems, cartItem];
     });
   };
