@@ -47,6 +47,60 @@
       "description": "A bottle of water",
       "imageUrl": "https://images.unsplash.com/photo-1566985415436-002cccb73558?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxib3R0bGVkJTIwd2F0ZXJ8ZW58MHx8fHwxNzYzNzU1NDYyfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "bottled water"
+    },
+    {
+      "id": "deal-1",
+      "description": "Burger combo with fries and drinks",
+      "imageUrl": "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxidXJnZXIlMjBjb21ib3xlbnwwfHx8fDE3NjM4MzQ1NjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "burger combo"
+    },
+    {
+      "id": "deal-2",
+      "description": "Burger and chicken combo with fries and drinks",
+      "imageUrl": "https://images.unsplash.com/photo-1589983295844-c846e51fe2ea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxidXJnZXIlMjBjaGlja2VufGVufDB8fHx8MTc2MzgzNDU2NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "burger chicken"
+    },
+    {
+      "id": "deal-3",
+      "description": "Three burger combo with fries and drink",
+      "imageUrl": "https://images.unsplash.com/photo-1649008695119-b4b748399675?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxidXJnZXIlMjBjb21ib3xlbnwwfHx8fDE3NjM4MzQ1NjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "burger combo"
+    },
+    {
+      "id": "deal-4",
+      "description": "Three burger and chicken combo",
+      "imageUrl": "https://images.unsplash.com/photo-1623259838743-9f1e884fba59?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxidXJnZXIlMjBjaGlja2VufGVufDB8fHx8MTc2MzgzNDU2NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "burger chicken"
+    },
+    {
+      "id": "pizza-small",
+      "description": "Small pizza with a drink",
+      "imageUrl": "https://images.unsplash.com/photo-1694718956362-ff4f13bebfb2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwaXp6YSUyMGRyaW5rfGVufDB8fHx8MTc2MzgzNDU2NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pizza drink"
+    },
+    {
+      "id": "pizza-regular",
+      "description": "Regular pizza with two drinks",
+      "imageUrl": "https://images.unsplash.com/photo-1694718945753-0c0353ad5ebf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwaXp6YSUyMGRyaW5rfGVufDB8fHx8MTc2MzgzNDU2NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pizza drink"
+    },
+    {
+      "id": "pizza-large",
+      "description": "Large pizza with a liter drink",
+      "imageUrl": "https://images.unsplash.com/photo-1694718966166-0adbdd053413?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwaXp6YSUyMGRyaW5rfGVufDB8fHx8MTc2MzgzNDU2NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pizza drink"
+    },
+    {
+      "id": "drink-liter",
+      "description": "A liter bottle of soda",
+      "imageUrl": "https://images.unsplash.com/photo-1711010345177-098657cab2da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzb2RhJTIwYm90dGxlfGVufDB8fHx8MTc2MzgzNDU2NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "soda bottle"
+    },
+    {
+      "id": "juice-small",
+      "description": "A small carton of juice",
+      "imageUrl": "https://images.unsplash.com/photo-1758578400128-0b09ebb0ca80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxqdWljZSUyMGNhcnRvbnxlbnwwfHx8fDE3NjM3NDE2MDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "juice carton"
     }
   ]
 }
