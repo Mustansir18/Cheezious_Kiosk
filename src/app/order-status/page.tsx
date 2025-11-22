@@ -26,6 +26,7 @@ export default function OrderStatusPage() {
         const parsed = JSON.parse(storedOrder);
         setPlacedOrder(parsed);
       } else {
+        // If no order in session, maybe redirect to home
         router.replace('/');
       }
     } catch (error) {
@@ -46,6 +47,7 @@ export default function OrderStatusPage() {
     const printableArea = document.getElementById(`printable-receipt-${order.id}`);
     if (!printableArea) return;
 
+    // The printable area is already in the DOM but hidden. We just need to trigger the print.
     const printContainer = document.createElement('div');
     printContainer.id = 'printable-area';
     printContainer.appendChild(printableArea.cloneNode(true));
@@ -53,14 +55,32 @@ export default function OrderStatusPage() {
     
     document.body.classList.add('printing-active');
     window.print();
-    document.body.classList.remove('printing-active');
-
-    document.body.removeChild(printContainer);
+    // Use a timeout to ensure the class is removed after printing UI has closed
+    setTimeout(() => {
+        document.body.classList.remove('printing-active');
+        if (document.body.contains(printContainer)) {
+            document.body.removeChild(printContainer);
+        }
+    }, 500);
   }, [order]);
+  
+  useEffect(() => {
+      // Auto-print logic
+      if (
+          !isSettingsLoading &&
+          !isOrdersLoading &&
+          settings.autoPrintReceipts &&
+          order &&
+          !printTriggered.current
+      ) {
+          handlePrint();
+          printTriggered.current = true; // Prevents re-triggering
+      }
+  }, [settings.autoPrintReceipts, order, isSettingsLoading, isOrdersLoading, handlePrint]);
+
 
   useEffect(() => {
     if (status === 'Ready') {
-      // Ensure Tone.js only runs on the client
       if (typeof window !== "undefined") {
         const synth = new Tone.Synth().toDestination();
         const now = Tone.now();
@@ -70,15 +90,8 @@ export default function OrderStatusPage() {
       }
     }
   }, [status]);
-
-  useEffect(() => {
-      if (settings.autoPrintReceipts && order && !isSettingsLoading && !printTriggered.current) {
-          handlePrint();
-          printTriggered.current = true; // ensure it only triggers once
-      }
-  }, [settings.autoPrintReceipts, order, isSettingsLoading, handlePrint])
   
-  if (!placedOrder || isOrdersLoading || !order || isSettingsLoading) {
+  if (isOrdersLoading || isSettingsLoading || !placedOrder || !order) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader className="h-12 w-12 animate-spin text-primary" />

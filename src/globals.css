@@ -94,58 +94,33 @@ body {
         print-color-adjust: exact !important;
     }
 
-    body.printing-active {
-        background-color: white !important;
-    }
-
-    /* Hide everything by default when printing is active */
+    /* When printing, hide everything by default */
     body.printing-active > * {
         display: none !important;
     }
 
-    /* Only show the printable area */
+    /* Only show the element being printed and its children */
     body.printing-active #printable-area,
     body.printing-active #printable-area * {
         display: block !important;
         visibility: visible !important;
     }
     
+    /* Position it at the top of the page */
     body.printing-active #printable-area {
         position: absolute !important;
         top: 0 !important;
         left: 0 !important;
         width: 100% !important;
         height: auto !important;
-        padding: 1rem !important;
-        margin: 0 !important;
-        border: none !important;
-        box-shadow: none !important;
-        background: white !important;
-        color: black !important;
+        padding: 0;
+        margin: 0;
+        border: none;
+        box-shadow: none;
     }
 
-    body.printing-active #printable-area .print-hidden {
+    /* Hide any elements that are explicitly marked to be hidden during print */
+    .print-hidden {
         display: none !important;
-    }
-
-    /* Ensure card backgrounds are white and text is black for printing */
-    body.printing-active #printable-area .card {
-        background: white !important;
-        color: black !important;
-        border: 1px solid #ccc !important;
-        box-shadow: none !important;
-    }
-
-     body.printing-active #printable-area .text-muted-foreground {
-        color: #555 !important;
-     }
-
-     body.printing-active #printable-area .text-primary {
-        color: #F59E0B !important;
-     }
-
-    /* Specific overrides for chart text */
-    body.printing-active .recharts-text {
-        fill: #333 !important;
     }
 }
