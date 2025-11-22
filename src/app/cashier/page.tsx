@@ -11,31 +11,33 @@ export default function CashierPage() {
   const { firestore } = useFirebase();
   const { user, isUserLoading } = useUser();
 
-  const ordersQuery = useMemoFirebase(
+  // Active orders are now those Ready for pickup
+  const activeOrdersQuery = useMemoFirebase(
     () =>
       firestore && user
         ? query(
             collection(firestore, "orders"),
-            where("status", "in", ["Pending", "Preparing"]),
+            where("status", "==", "Ready"),
             orderBy("orderDate", "asc")
           )
         : null,
     [firestore, user]
   );
   
+  // Completed orders remain the same
   const completedOrdersQuery = useMemoFirebase(
     () =>
       firestore && user
         ? query(
             collection(firestore, "orders"),
-            where("status", "in", ["Ready", "Completed"]),
+            where("status", "==", "Completed"),
             orderBy("orderDate", "desc")
           )
         : null,
     [firestore, user]
   );
 
-  const { data: activeOrders, isLoading: isLoadingActive } = useCollection<Order>(ordersQuery);
+  const { data: activeOrders, isLoading: isLoadingActive } = useCollection<Order>(activeOrdersQuery);
   const { data: completedOrders, isLoading: isLoadingCompleted } = useCollection<Order>(completedOrdersQuery);
   
   const totalSales = completedOrders?.reduce((acc, order) => acc + order.totalAmount, 0) ?? 0;
@@ -43,7 +45,7 @@ export default function CashierPage() {
   const isLoading = isUserLoading || isLoadingActive || isLoadingCompleted;
 
   const summaryCards = [
-    { title: "Active Orders", value: activeOrders?.length ?? 0, icon: CookingPot },
+    { title: "Orders Ready for Pickup", value: activeOrders?.length ?? 0, icon: CookingPot },
     { title: "Completed Today", value: completedOrders?.length ?? 0, icon: CheckCircle },
     { title: "Total Sales", value: `$${totalSales.toFixed(2)}`, icon: BarChart },
   ];
@@ -61,7 +63,7 @@ export default function CashierPage() {
     <div className="container mx-auto p-4 lg:p-8">
       <header className="mb-8">
         <h1 className="font-headline text-4xl font-bold">Cashier Dashboard</h1>
-        <p className="text-muted-foreground">Live orders from Cheezious Connect</p>
+        <p className="text-muted-foreground">Manage ready and completed orders.</p>
       </header>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
@@ -80,17 +82,17 @@ export default function CashierPage() {
         ))}
       </div>
 
-
+      <h2 className="font-headline text-2xl font-bold mb-4">Ready for Pickup</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {isLoadingActive ? (
             Array.from({ length: 3 }).map((_, i) => <OrderCard.Skeleton key={i} />)
         ) : activeOrders && activeOrders.length > 0 ? (
-          activeOrders.map((order) => <OrderCard key={order.id} order={order} />)
+          activeOrders.map((order) => <OrderCard key={order.id} order={order} workflow="cashier" />)
         ) : (
           <Card className="lg:col-span-2 xl:col-span-3 flex flex-col items-center justify-center p-12 text-center">
              <Clock className="h-16 w-16 text-muted-foreground/50 mb-4" />
-            <h3 className="font-headline text-xl font-semibold">No active orders</h3>
-            <p className="text-muted-foreground">New orders will appear here automatically.</p>
+            <h3 className="font-headline text-xl font-semibold">No orders are ready</h3>
+            <p className="text-muted-foreground">Orders marked as "Ready" by the kitchen will appear here.</p>
           </Card>
         )}
       </div>

@@ -88,6 +88,7 @@ export default function OrderConfirmationPage() {
         await Promise.all(itemPromises);
 
         const placedOrder: PlacedOrder = {
+            orderId: docRef.id,
             orderNumber,
             items,
             total: cartTotal,

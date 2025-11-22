@@ -21,15 +21,15 @@ import { Utensils, ShoppingBag, Check, CheckCircle, CookingPot, Loader } from "l
 import { updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 
 const statusConfig = {
-    Pending: { icon: Loader, color: "bg-gray-500", label: "New Order" },
-    Preparing: { icon: CookingPot, color: "bg-blue-500", label: "Preparing" },
-    Ready: { icon: Check, color: "bg-yellow-500", label: "Ready" },
-    Completed: { icon: CheckCircle, color: "bg-green-500", label: "Completed" },
-    Cancelled: { icon: CheckCircle, color: "bg-red-500", label: "Cancelled" },
+    Pending: { icon: Loader, color: "text-gray-500", label: "Pending" },
+    Preparing: { icon: CookingPot, color: "text-blue-500", label: "Preparing" },
+    Ready: { icon: Check, color: "text-yellow-500", label: "Ready for Pickup" },
+    Completed: { icon: CheckCircle, color: "text-green-500", label: "Completed" },
+    Cancelled: { icon: CheckCircle, color: "text-red-500", label: "Cancelled" },
 };
 
 
-export function OrderCard({ order }: { order: Order }) {
+export function OrderCard({ order, workflow = 'cashier' }: { order: Order, workflow?: 'cashier' | 'kds' }) {
   const { firestore } = useFirebase();
   const orderItemsQuery = useMemoFirebase(
     () =>
@@ -85,29 +85,34 @@ export function OrderCard({ order }: { order: Order }) {
             <StatusIcon className={`mr-2 h-5 w-5 ${statusConfig[order.status]?.color}`} />
             <span className="font-semibold">{statusConfig[order.status]?.label}</span>
          </div>
-         <div className="grid grid-cols-2 gap-2 w-full">
-            {order.status === 'Pending' && (
-                <Button onClick={() => handleUpdateStatus('Preparing')} size="sm" className="w-full">
-                    <CookingPot className="mr-2 h-4 w-4" /> Accept & Prepare
-                </Button>
-            )}
-            {order.status === 'Preparing' && (
-                <Button onClick={() => handleUpdateStatus('Ready')} size="sm" className="w-full bg-yellow-500 hover:bg-yellow-600 text-black">
-                   <Check className="mr-2 h-4 w-4" /> Mark as Ready
-                </Button>
-            )}
-            {order.status === 'Ready' && (
-                 <Button onClick={() => handleUpdateStatus('Completed')} size="sm" className="w-full bg-green-500 hover:bg-green-600">
-                    <CheckCircle className="mr-2 h-4 w-4" /> Mark as Completed
-                 </Button>
-            )}
-             {(order.status === 'Pending' || order.status === 'Preparing') && (
-                <Button onClick={() => handleUpdateStatus('Cancelled')} size="sm" variant="destructive" className="w-full">
-                    Cancel Order
-                </Button>
-             )}
-         </div>
-
+         {workflow === 'kds' && (
+             <div className="grid grid-cols-1 gap-2 w-full">
+                {order.status === 'Pending' && (
+                    <Button onClick={() => handleUpdateStatus('Preparing')} size="sm" className="w-full">
+                        <CookingPot className="mr-2 h-4 w-4" /> Accept & Prepare
+                    </Button>
+                )}
+                {order.status === 'Preparing' && (
+                    <Button onClick={() => handleUpdateStatus('Ready')} size="sm" className="w-full bg-yellow-500 hover:bg-yellow-600 text-black">
+                       <Check className="mr-2 h-4 w-4" /> Mark as Ready
+                    </Button>
+                )}
+             </div>
+         )}
+         {workflow === 'cashier' && (
+            <div className="grid grid-cols-2 gap-2 w-full">
+                {order.status === 'Ready' && (
+                     <Button onClick={() => handleUpdateStatus('Completed')} size="sm" className="w-full bg-green-500 hover:bg-green-600">
+                        <CheckCircle className="mr-2 h-4 w-4" /> Mark as Completed
+                     </Button>
+                )}
+                 {(order.status === 'Pending' || order.status === 'Preparing' || order.status === 'Ready') && (
+                    <Button onClick={() => handleUpdateStatus('Cancelled')} size="sm" variant="destructive" className="w-full col-span-full">
+                        Cancel Order
+                    </Button>
+                 )}
+             </div>
+         )}
       </CardFooter>
     </Card>
   );

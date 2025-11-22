@@ -1,11 +1,15 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheeziousLogo } from '@/components/icons/CheeziousLogo';
-import { branches } from '@/lib/data';
-import { MapPin, LogIn } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 
 export default function Home() {
+  // Redirect immediately to the default branch page
+  redirect('/branch/rssu');
+
+  // This part of the component will not be rendered due to the redirect,
+  // but it's kept here as a fallback and for structural reference.
   return (
     <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
       <div className="flex flex-col items-center space-y-4 text-center">
@@ -14,46 +18,25 @@ export default function Home() {
           Welcome to Cheezious Connect
         </h1>
         <p className="max-w-xl text-lg text-muted-foreground">
-          Your seamless digital dining experience starts here. Scan, select, and savor your favorite Cheezious delights.
+          Your seamless digital dining experience starts here. Redirecting to our branch...
         </p>
       </div>
-
-      <Card className="mt-12 w-full max-w-md shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-center font-headline text-2xl">
-            Select Your Branch
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col space-y-4">
-            {branches.map((branch) => (
-              <Button
-                key={branch.id}
-                asChild
-                size="lg"
-                className="justify-start"
-              >
-                <Link href={`/branch/${branch.id}`}>
-                  <MapPin className="mr-2 h-5 w-5" />
-                  {branch.name}
-                </Link>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="mt-8 w-full max-w-md">
-        <Button asChild variant="outline" className="w-full" size="lg">
+      
+      <footer className="absolute bottom-4 text-center text-sm text-muted-foreground">
+        <Button asChild variant="ghost" className="text-muted-foreground">
           <Link href="/cashier">
-            <LogIn className="mr-2 h-5 w-5" />
-            Cashier Login
+            <LogIn className="mr-2 h-4 w-4" />
+            Cashier
           </Link>
         </Button>
-      </div>
-
-      <footer className="mt-12 text-center text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Cheezious Connect. All Rights Reserved.</p>
+        <span className='mx-2'>|</span>
+         <Button asChild variant="ghost" className="text-muted-foreground">
+          <Link href="/kds">
+            <LogIn className="mr-2 h-4 w-4" />
+            Kitchen
+          </Link>
+        </Button>
+        <p className="mt-2">&copy; {new Date().getFullYear()} Cheezious Connect. All Rights Reserved.</p>
       </footer>
     </main>
   );

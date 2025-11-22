@@ -26,6 +26,7 @@ export type CartItem = {
 export type OrderType = 'Dine-In' | 'Take Away';
 
 export type PlacedOrder = {
+    orderId: string;
     orderNumber: string;
     items: CartItem[];
     total: number;
