@@ -17,7 +17,7 @@ export default function CashierPage() {
   const summaryCards = [
     { title: "Orders Ready for Pickup", value: activeOrders?.length ?? 0, icon: CookingPot },
     { title: "Completed Today", value: completedOrders?.length ?? 0, icon: CheckCircle },
-    { title: "Total Sales", value: `RS${totalSales.toFixed(2)}`, icon: BarChart },
+    { title: "Total Sales", value: `RS ${totalSales.toFixed(2)}`, icon: BarChart },
   ];
 
   if (isLoading) {

@@ -145,11 +145,11 @@ export default function OrderConfirmationPage() {
                   <div className="flex-grow">
                     <p className="font-semibold">{item.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      {item.quantity} x RS{item.price.toFixed(2)}
+                      {item.quantity} x RS {item.price.toFixed(2)}
                     </p>
                   </div>
                   <p className="font-semibold">
-                    RS{(item.quantity * item.price).toFixed(2)}
+                    RS {(item.quantity * item.price).toFixed(2)}
                   </p>
                 </div>
                 {index < items.length - 1 && <Separator />}
@@ -177,7 +177,7 @@ export default function OrderConfirmationPage() {
 
             <div className="flex justify-between pt-4 text-xl font-bold">
               <span>Total</span>
-              <span>RS{cartTotal.toFixed(2)}</span>
+              <span>RS {cartTotal.toFixed(2)}</span>
             </div>
           </div>
         </CardContent>

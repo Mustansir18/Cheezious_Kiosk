@@ -97,7 +97,7 @@ export default function OrderStatusPage() {
             <h3 className="font-headline font-semibold mb-2">Order Summary</h3>
             <p><strong>Branch:</strong> {placedOrder.branchName}</p>
             {placedOrder.tableName && <p><strong>Table:</strong> {placedOrder.tableName}</p>}
-            <p><strong>Total:</strong> <span className="font-bold">RS{placedOrder.total.toFixed(2)}</span></p>
+            <p><strong>Total:</strong> <span className="font-bold">RS {placedOrder.total.toFixed(2)}</span></p>
           </div>
 
         </CardContent>

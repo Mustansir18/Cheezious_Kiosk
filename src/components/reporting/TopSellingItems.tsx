@@ -47,7 +47,7 @@ export function TopSellingItems({ data }: TopSellingItemsProps) {
                   <TableCell className="font-medium">{item.name}</TableCell>
                   <TableCell className="text-center">{item.quantity}</TableCell>
                   <TableCell className="text-right">
-                    RS{item.totalRevenue.toFixed(2)}
+                    RS {item.totalRevenue.toFixed(2)}
                   </TableCell>
                 </TableRow>
               ))}

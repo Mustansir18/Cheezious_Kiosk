@@ -109,7 +109,7 @@ export default function ReportingPage() {
   } = reportData;
 
   const summaryCards = [
-    { title: "Total Sales", value: `RS${totalSales.toFixed(2)}`, icon: DollarSign },
+    { title: "Total Sales", value: `RS ${totalSales.toFixed(2)}`, icon: DollarSign },
     { title: "Total Orders", value: totalOrders, icon: ShoppingCart },
     { title: "Total Items Sold", value: totalItemsSold, icon: Utensils },
   ];

@@ -52,7 +52,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                       <div className="flex-grow">
                         <p className="font-semibold">{item.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          RS{item.price.toFixed(2)}
+                          RS {item.price.toFixed(2)}
                         </p>
                       </div>
                       <UpdateQuantity itemId={item.id} quantity={item.quantity} />
@@ -66,7 +66,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                 <div className="w-full space-y-4">
                     <div className="flex justify-between font-bold text-lg">
                         <span>Total:</span>
-                        <span>RS{cartTotal.toFixed(2)}</span>
+                        <span>RS {cartTotal.toFixed(2)}</span>
                     </div>
                     <Button asChild size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
                         <Link href={`/branch/${branchId}/order`}>Confirm Order</Link>

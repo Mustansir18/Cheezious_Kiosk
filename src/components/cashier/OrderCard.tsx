@@ -66,7 +66,7 @@ export function OrderCard({ order, workflow = 'cashier', onUpdateStatus }: Order
                     <div>
                         <span className="font-semibold">{item.quantity}x</span> {item.name}
                     </div>
-                    <div className="font-mono">RS{(item.quantity * item.itemPrice).toFixed(2)}</div>
+                    <div className="font-mono">RS {(item.quantity * item.itemPrice).toFixed(2)}</div>
                 </div>
             ))}
             </div>
@@ -74,7 +74,7 @@ export function OrderCard({ order, workflow = 'cashier', onUpdateStatus }: Order
         <Separator className="my-4" />
         <div className="flex justify-between font-bold text-lg">
             <span>Total</span>
-            <span>RS{order.totalAmount.toFixed(2)}</span>
+            <span>RS {order.totalAmount.toFixed(2)}</span>
         </div>
          {order.paymentMethod && (
             <div className="flex items-center mt-2 text-sm text-muted-foreground">

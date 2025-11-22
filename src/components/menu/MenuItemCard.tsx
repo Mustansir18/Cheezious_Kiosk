@@ -35,7 +35,7 @@ export function MenuItemCard({ item }: { item: MenuItem }) {
         <CardDescription className="mt-2 flex-grow">{item.description}</CardDescription>
       </CardContent>
       <CardFooter className="flex items-center justify-between p-4 pt-0">
-        <p className="text-xl font-bold text-primary">RS{item.price.toFixed(2)}</p>
+        <p className="text-xl font-bold text-primary">RS {item.price.toFixed(2)}</p>
         {cartItem ? (
           <UpdateQuantity itemId={cartItem.id} quantity={cartItem.quantity} />
         ) : (
