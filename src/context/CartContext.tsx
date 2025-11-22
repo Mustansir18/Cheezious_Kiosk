@@ -61,6 +61,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         setFloorId(null);
         setTableId(null);
     }
+     // Clear items if branch or mode changes
+     if (details.branchId !== branchId || details.orderType !== orderType) {
+      setItems([]);
+    }
   };
 
   const addItem = (itemToAdd: MenuItem) => {
