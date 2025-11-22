@@ -2,6 +2,8 @@
 
 import type { HourlySale } from '@/app/admin/reporting/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Printer } from 'lucide-react';
 import {
   Bar,
   BarChart,
@@ -14,14 +16,20 @@ import {
 
 interface HourlySalesReportProps {
   data: HourlySale[];
+  onPrint: () => void;
 }
 
-export function HourlySalesReport({ data }: HourlySalesReportProps) {
+export function HourlySalesReport({ data, onPrint }: HourlySalesReportProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-headline">Hourly Sales</CardTitle>
-        <CardDescription>Total revenue generated per hour today.</CardDescription>
+    <Card className="h-full">
+      <CardHeader className="flex-row justify-between items-center">
+        <div>
+            <CardTitle className="font-headline">Hourly Sales</CardTitle>
+            <CardDescription>Total revenue generated per hour for the selected period.</CardDescription>
+        </div>
+        <Button variant="ghost" size="icon" className="print-hidden" onClick={onPrint}>
+            <Printer className="h-4 w-4"/>
+        </Button>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>

@@ -17,19 +17,27 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ScrollArea } from '../ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Printer } from 'lucide-react';
 
 interface TopSellingItemsProps {
   data: ItemSale[];
+  onPrint: () => void;
 }
 
-export function TopSellingItems({ data }: TopSellingItemsProps) {
+export function TopSellingItems({ data, onPrint }: TopSellingItemsProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-headline">Top Selling Items</CardTitle>
-        <CardDescription>
-          Menu items ranked by quantity sold in this session.
-        </CardDescription>
+    <Card className="h-full">
+      <CardHeader className="flex-row justify-between items-center">
+        <div>
+            <CardTitle className="font-headline">Top Selling Items</CardTitle>
+            <CardDescription>
+            Menu items ranked by quantity sold for the selected period.
+            </CardDescription>
+        </div>
+         <Button variant="ghost" size="icon" className="print-hidden" onClick={onPrint}>
+            <Printer className="h-4 w-4"/>
+        </Button>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[300px]">

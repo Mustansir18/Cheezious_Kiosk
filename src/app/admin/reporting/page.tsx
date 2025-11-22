@@ -2,7 +2,7 @@
 "use client";
 
 import { useOrders } from "@/context/OrderContext";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import type { Order, OrderItem } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Calendar as CalendarIcon, ShoppingCart, DollarSign, Utensils, Loader, Printer, CreditCard, ShoppingBag, FileDown } from "lucide-react";
@@ -104,9 +104,41 @@ export default function ReportingPage() {
     };
   }, [orders, dateRange]);
 
-  const handlePrint = () => {
+    const handlePrint = (reportId: string) => {
+    const reportElement = document.getElementById(reportId);
+    if (!reportElement) return;
+
+    // Create a temporary, printable container
+    const printableArea = document.createElement('div');
+    printableArea.id = 'printable-area';
+    printableArea.innerHTML = reportElement.innerHTML;
+    
+    // Append to body, print, then remove
+    document.body.appendChild(printableArea);
+    document.body.classList.add('printing-active');
+    
     window.print();
+    
+    document.body.removeChild(printableArea);
+    document.body.classList.remove('printing-active');
   };
+
+  useEffect(() => {
+    const afterPrint = () => {
+      // Cleanup in case the print dialog is cancelled
+      document.body.classList.remove('printing-active');
+      const printableArea = document.getElementById('printable-area');
+      if (printableArea) {
+        document.body.removeChild(printableArea);
+      }
+    };
+
+    window.addEventListener('afterprint', afterPrint);
+    return () => {
+      window.removeEventListener('afterprint', afterPrint);
+    };
+  }, []);
+
 
   if (isLoading) {
     return (
@@ -120,7 +152,7 @@ export default function ReportingPage() {
   if (!reportData || orders.length === 0) {
       return (
         <div className="container mx-auto p-4 lg:p-8 text-center">
-             <header className="mb-8 print:hidden">
+             <header className="mb-8">
                 <h1 className="font-headline text-4xl font-bold">Admin Reports</h1>
                 <p className="text-muted-foreground">Sales data from the current session.</p>
             </header>
@@ -154,8 +186,8 @@ export default function ReportingPage() {
   ];
 
   return (
-    <div className="container mx-auto p-4 lg:p-8" id="print-area">
-      <header className="mb-8 flex flex-col md:flex-row justify-between items-start gap-4 print:hidden">
+    <div className="container mx-auto p-4 lg:p-8">
+      <header className="mb-8 flex flex-col md:flex-row justify-between items-start gap-4">
         <div>
             <h1 className="font-headline text-4xl font-bold">Admin Reports</h1>
             <p className="text-muted-foreground">Sales data for the selected period.</p>
@@ -197,60 +229,68 @@ export default function ReportingPage() {
                 />
               </PopoverContent>
             </Popover>
-            <Button onClick={handlePrint}>
-                <Printer className="mr-2 h-4 w-4" />
-                Print Report
-            </Button>
-            <Button variant="outline" disabled>
-              <FileDown className="mr-2 h-4 w-4" />
-              Download
-            </Button>
         </div>
       </header>
       
-      {/* This div wrapper ensures print styles apply correctly */}
-      <div className="print-content space-y-8">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-5">
-              {summaryCards.map(card => (
-                  <Card key={card.title}>
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                          <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-                          <card.icon className="h-5 w-5 text-muted-foreground" />
-                      </CardHeader>
-                      <CardContent>
-                          <div className="text-2xl font-bold">{card.value}</div>
-                      </CardContent>
-                  </Card>
-              ))}
+      <div className="space-y-8">
+          <div id="summary-report">
+            <Card>
+                <CardHeader className="flex-row justify-between items-center">
+                    <CardTitle>Summary</CardTitle>
+                    <Button variant="ghost" size="icon" className="print-hidden" onClick={() => handlePrint('summary-report')}>
+                        <Printer className="h-4 w-4"/>
+                    </Button>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-5">
+                    {summaryCards.map(card => (
+                        <Card key={card.title}>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+                                <card.icon className="h-5 w-5 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{card.value}</div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </CardContent>
+            </Card>
           </div>
           
-          <Card>
-              <CardHeader>
-                  <CardTitle className="font-headline flex items-center"><CreditCard className="mr-2 h-5 w-5 text-primary"/>Payment Method Breakdown (Dine-In)</CardTitle>
-                  <CardDescription>Number of dine-in orders per payment method for the selected period.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                  {Object.keys(paymentMethodCounts).length > 0 ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                          {Object.entries(paymentMethodCounts).map(([method, count]) => (
-                              <div key={method} className="bg-muted/50 p-4 rounded-lg">
-                                  <p className="text-sm font-medium text-muted-foreground">{method}</p>
-                                  <p className="text-2xl font-bold">{count}</p>
-                              </div>
-                          ))}
-                      </div>
-                  ) : (
-                      <p className="text-muted-foreground">No dine-in orders with a payment method recorded for this period.</p>
-                  )}
-              </CardContent>
-          </Card>
+          <div id="payment-report">
+            <Card>
+                <CardHeader className="flex-row justify-between items-center">
+                    <div>
+                        <CardTitle className="font-headline flex items-center"><CreditCard className="mr-2 h-5 w-5 text-primary"/>Payment Method Breakdown (Dine-In)</CardTitle>
+                        <CardDescription>Number of dine-in orders per payment method for the selected period.</CardDescription>
+                    </div>
+                     <Button variant="ghost" size="icon" className="print-hidden" onClick={() => handlePrint('payment-report')}>
+                        <Printer className="h-4 w-4"/>
+                    </Button>
+                </CardHeader>
+                <CardContent>
+                    {Object.keys(paymentMethodCounts).length > 0 ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            {Object.entries(paymentMethodCounts).map(([method, count]) => (
+                                <div key={method} className="bg-muted/50 p-4 rounded-lg">
+                                    <p className="text-sm font-medium text-muted-foreground">{method}</p>
+                                    <p className="text-2xl font-bold">{count}</p>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-muted-foreground">No dine-in orders with a payment method recorded for this period.</p>
+                    )}
+                </CardContent>
+            </Card>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-              <div className="lg:col-span-3">
-                  <HourlySalesReport data={hourlySalesChartData} />
+              <div className="lg:col-span-3" id="hourly-sales-report">
+                  <HourlySalesReport data={hourlySalesChartData} onPrint={() => handlePrint('hourly-sales-report')} />
               </div>
-              <div className="lg:col-span-2">
-                  <TopSellingItems data={topSellingItems} />
+              <div className="lg:col-span-2" id="top-items-report">
+                  <TopSellingItems data={topSellingItems} onPrint={() => handlePrint('top-items-report')} />
               </div>
           </div>
       </div>
