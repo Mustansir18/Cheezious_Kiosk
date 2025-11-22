@@ -18,7 +18,9 @@ import {
 } from '@/components/ui/table';
 import { ScrollArea } from '../ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Printer } from 'lucide-react';
+import { Printer, FileDown } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
 
 interface TopSellingItemsProps {
   data: ItemSale[];
@@ -35,9 +37,21 @@ export function TopSellingItems({ data, onPrint }: TopSellingItemsProps) {
             Menu items ranked by quantity sold for the selected period.
             </CardDescription>
         </div>
-         <Button variant="ghost" size="icon" className="print-hidden" onClick={onPrint}>
-            <Printer className="h-4 w-4"/>
-        </Button>
+         <div className="flex items-center gap-2 print-hidden">
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" disabled>
+                        <FileDown className="h-4 w-4"/>
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Download report (coming soon)</p>
+                </TooltipContent>
+            </Tooltip>
+            <Button variant="ghost" size="icon" onClick={onPrint}>
+                <Printer className="h-4 w-4"/>
+            </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[300px]">
@@ -66,3 +80,5 @@ export function TopSellingItems({ data, onPrint }: TopSellingItemsProps) {
     </Card>
   );
 }
+
+    

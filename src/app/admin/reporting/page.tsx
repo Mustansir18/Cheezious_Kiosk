@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { DateRange } from "react-day-picker";
+import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export interface ItemSale {
   name: string;
@@ -186,6 +187,7 @@ export default function ReportingPage() {
   ];
 
   return (
+    <TooltipProvider>
     <div className="container mx-auto p-4 lg:p-8">
       <header className="mb-8 flex flex-col md:flex-row justify-between items-start gap-4">
         <div>
@@ -237,9 +239,21 @@ export default function ReportingPage() {
             <Card>
                 <CardHeader className="flex-row justify-between items-center">
                     <CardTitle>Summary</CardTitle>
-                    <Button variant="ghost" size="icon" className="print-hidden" onClick={() => handlePrint('summary-report')}>
-                        <Printer className="h-4 w-4"/>
-                    </Button>
+                    <div className="flex items-center gap-2 print-hidden">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" disabled>
+                                    <FileDown className="h-4 w-4"/>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Download report (coming soon)</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <Button variant="ghost" size="icon" onClick={() => handlePrint('summary-report')}>
+                            <Printer className="h-4 w-4"/>
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-5">
                     {summaryCards.map(card => (
@@ -264,9 +278,21 @@ export default function ReportingPage() {
                         <CardTitle className="font-headline flex items-center"><CreditCard className="mr-2 h-5 w-5 text-primary"/>Payment Method Breakdown (Dine-In)</CardTitle>
                         <CardDescription>Number of dine-in orders per payment method for the selected period.</CardDescription>
                     </div>
-                     <Button variant="ghost" size="icon" className="print-hidden" onClick={() => handlePrint('payment-report')}>
-                        <Printer className="h-4 w-4"/>
-                    </Button>
+                    <div className="flex items-center gap-2 print-hidden">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" disabled>
+                                    <FileDown className="h-4 w-4"/>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Download report (coming soon)</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <Button variant="ghost" size="icon" onClick={() => handlePrint('payment-report')}>
+                            <Printer className="h-4 w-4"/>
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {Object.keys(paymentMethodCounts).length > 0 ? (
@@ -295,5 +321,8 @@ export default function ReportingPage() {
           </div>
       </div>
     </div>
+    </TooltipProvider>
   );
 }
+
+    
