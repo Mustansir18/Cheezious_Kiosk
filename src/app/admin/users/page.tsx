@@ -17,26 +17,32 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Trash2, PlusCircle, User } from 'lucide-react';
+import { Trash2, PlusCircle, User, Edit } from 'lucide-react';
 import type { User as UserType } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { branches } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 
 function UserForm({
+  user,
   onSave,
 }: {
-  onSave: (user: Omit<UserType, 'id'>) => void;
+  user?: UserType;
+  onSave: (user: Omit<UserType, 'id'> | UserType) => void;
 }) {
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(user?.username || '');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'admin' | 'cashier'>('cashier');
-  const [branchId, setBranchId] = useState<string | undefined>();
+  const [role, setRole] = useState<'admin' | 'cashier' | 'root'>(user?.role || 'cashier');
+  const [branchId, setBranchId] = useState<string | undefined>(user?.branchId);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username && password && role) {
-      onSave({ username, password, role, branchId });
+    if (user) { // Editing existing user
+      onSave({ ...user, username, role, branchId, ...(password && { password }) });
+    } else { // Creating new user
+      if (username && password && role) {
+        onSave({ username, password, role, branchId });
+      }
     }
   };
 
@@ -48,11 +54,18 @@ function UserForm({
       </div>
       <div>
         <Label htmlFor="password">Password</Label>
-        <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <Input 
+          id="password" 
+          type="password" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          placeholder={user ? "Leave blank to keep current password" : ""}
+          required={!user} 
+        />
       </div>
        <div>
         <Label htmlFor="role">Role</Label>
-        <Select value={role} onValueChange={(value) => setRole(value as 'admin' | 'cashier')}>
+        <Select value={role} onValueChange={(value) => setRole(value as 'admin' | 'cashier' | 'root')}>
             <SelectTrigger id="role">
                 <SelectValue placeholder="Select a role" />
             </SelectTrigger>
@@ -89,12 +102,18 @@ function UserForm({
 
 
 export default function UserManagementPage() {
-    const { users, user, addUser, deleteUser } = useAuth();
+    const { users, user, addUser, deleteUser, updateUser } = useAuth();
     const [isDialogOpen, setDialogOpen] = useState(false);
+    const [editingUser, setEditingUser] = useState<UserType | undefined>();
 
-    const handleSaveUser = (newUser: Omit<UserType, 'id'>) => {
-        addUser(newUser.username, newUser.password, newUser.role, newUser.branchId);
+    const handleSaveUser = (userToSave: Omit<UserType, 'id'> | UserType) => {
+        if ('id' in userToSave) {
+          updateUser(userToSave);
+        } else {
+          addUser(userToSave.username, userToSave.password!, userToSave.role, userToSave.branchId);
+        }
         setDialogOpen(false);
+        setEditingUser(undefined);
     };
     
     // Filter users: root user sees all, branch admin sees only their branch's users
@@ -108,6 +127,16 @@ export default function UserManagementPage() {
         return false;
     });
 
+    const openAddDialog = () => {
+      setEditingUser(undefined);
+      setDialogOpen(true);
+    }
+    
+    const openEditDialog = (userToEdit: UserType) => {
+        setEditingUser(userToEdit);
+        setDialogOpen(true);
+    }
+
     return (
         <div className="container mx-auto p-4 lg:p-8 space-y-8">
              <Card>
@@ -117,17 +146,17 @@ export default function UserManagementPage() {
                         <CardDescription>Create and manage cashier and branch admin accounts.</CardDescription>
                     </div>
                     <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-                            <DialogTrigger asChild>
-                            <Button>
+                        <DialogTrigger asChild>
+                           <Button onClick={openAddDialog}>
                                 <PlusCircle className="mr-2 h-4 w-4" /> Add User
                             </Button>
-                            </DialogTrigger>
-                            <DialogContent>
+                        </DialogTrigger>
+                        <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>Add New User</DialogTitle>
+                                <DialogTitle>{editingUser ? 'Edit User' : 'Add New User'}</DialogTitle>
                             </DialogHeader>
-                            <UserForm onSave={handleSaveUser} />
-                            </DialogContent>
+                            <UserForm user={editingUser} onSave={handleSaveUser} />
+                        </DialogContent>
                     </Dialog>
                 </CardHeader>
                 <CardContent>
@@ -154,6 +183,9 @@ export default function UserManagementPage() {
                                 </TableCell>
                                 <TableCell>{branches.find(b => b.id === u.branchId)?.name || 'N/A'}</TableCell>
                                 <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" onClick={() => openEditDialog(u)}>
+                                        <Edit className="h-4 w-4" />
+                                    </Button>
                                     <Button variant="ghost" size="icon" onClick={() => deleteUser(u.id)}>
                                         <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>

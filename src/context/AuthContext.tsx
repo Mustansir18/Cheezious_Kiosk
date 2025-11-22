@@ -13,6 +13,7 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<User | null>;
   logout: () => void;
   addUser: (username: string, password: string, role: UserRole, branchId?: string) => void;
+  updateUser: (user: User) => void;
   deleteUser: (id: string) => void;
 }
 
@@ -74,9 +75,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (isLoading) return;
     try {
-        // Don't store passwords in local storage for security.
-        // The root user password will be re-added on load.
-        const usersToStore = users.map(({password, ...user}) => user);
+        // We need to re-add passwords for non-root users before login checks,
+        // but don't store them in localStorage. Let's find a way to manage this.
+        // For now, this just saves users without passwords.
+        const usersToStore = users.map(u => {
+            const { password, ...userToStore } = u;
+            // Never store the root user's password in localStorage
+            if (userToStore.id === 'root-user') {
+                return userToStore;
+            }
+            return userToStore;
+        });
         localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(usersToStore));
     } catch (error) {
       console.error("Could not save users to local storage", error);
@@ -120,6 +129,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUsers(prev => [...prev, newUser]);
   }, [users]);
 
+  const updateUser = useCallback((updatedUser: User) => {
+    setUsers(prev => prev.map(u => {
+        if (u.id === updatedUser.id) {
+            // Keep the old password if the new one is not provided
+            const newPassword = updatedUser.password ? updatedUser.password : u.password;
+            return { ...updatedUser, password: newPassword };
+        }
+        return u;
+    }));
+  }, []);
+
   const deleteUser = useCallback((id: string) => {
     if (id === rootUser.id) {
         alert("Cannot delete the root user.");
@@ -128,7 +148,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUsers(prev => prev.filter(u => u.id !== id));
   }, []);
 
-  const value = { user, users, isLoading, login, logout, addUser, deleteUser };
+  const value = { user, users, isLoading, login, logout, addUser, updateUser, deleteUser };
 
   return (
     <AuthContext.Provider value={value}>
