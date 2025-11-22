@@ -17,16 +17,18 @@ import { useDeals } from "@/context/DealsContext";
 // TODO: Re-enable autoplay when dependency issue is resolved.
 // import Autoplay from "embla-carousel-autoplay";
 import { Loader } from "lucide-react";
+import { branches } from "@/lib/data";
 
 export default function Home() {
   const { deals, isLoading } = useDeals();
+  const defaultBranch = branches.find(b => b.id === 'rssu');
 
   return (
     <main className="flex min-h-screen flex-col">
       <div className="container mx-auto flex flex-col items-center justify-center p-4 text-center flex-grow">
         <CheeziousLogo className="h-24 w-auto text-primary" />
         <h1 className="font-headline text-4xl font-bold tracking-tight text-primary md:text-5xl mt-4">
-          Welcome to Cheezious Connect
+          Welcome to {defaultBranch?.name || 'Cheezious'}
         </h1>
         <p className="max-w-xl text-lg text-muted-foreground mt-2">
           Your seamless digital dining experience starts here.
