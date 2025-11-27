@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -26,12 +27,13 @@ export default function Header({ branchId }: { branchId: string }) {
             {branch && <h2 className="font-headline text-lg font-semibold">{branch.name}</h2>}
         </div>
         <CartSheet>
-          <Button variant="ghost" size="icon" className="relative">
-            <ShoppingCart className="h-6 w-6" />
+          <Button variant="outline" className="relative">
+            <ShoppingCart className="h-5 w-5" />
+            <span className="ml-2 hidden sm:inline">Cart</span>
             {cartCount > 0 && (
               <Badge
                 variant="destructive"
-                className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent p-2 text-accent-foreground"
+                className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent p-2 text-xs text-accent-foreground"
               >
                 {cartCount}
               </Badge>
