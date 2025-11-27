@@ -29,7 +29,7 @@ export default function Header({ branchId }: { branchId: string }) {
         <CartSheet>
           <Button variant="outline" className="relative">
             <ShoppingCart className="h-5 w-5" />
-            <span className="ml-2 hidden sm:inline">Cart</span>
+            <span className="ml-2">Cart</span>
             {cartCount > 0 && (
               <Badge
                 variant="destructive"

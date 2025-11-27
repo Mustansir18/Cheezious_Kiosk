@@ -225,7 +225,7 @@
     {
       "id": "juice-small",
       "description": "A small carton of fruit juice.",
-      "imageUrl": "https://images.unsplash.com/photo-1577805947693-89ba12117539?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxqdWljZSUyMGNhcnRvbnxlbnwwfHx8fDE3NjM5MzYzNzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1577805947693-89ba121175a3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxqdWljZSUyMGNhcnRvbnxlbnwwfHx8fDE3NjM5MzYzNzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "juice"
     }
   ]
