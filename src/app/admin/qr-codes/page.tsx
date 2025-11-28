@@ -10,9 +10,10 @@ import { Button } from '../../../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Label } from '../../../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
-import { Utensils, ShoppingBag, Printer, Download, Image as ImageIcon, File as FileIcon, FileImage } from 'lucide-react';
+import { Utensils, ShoppingBag, Printer, Download, Image as ImageIcon, File as FileIcon, FileArchive } from 'lucide-react';
 import type { Table, Floor } from '../../../lib/types';
 import jsPDF from "jspdf";
+import JSZip from 'jszip';
 import { toast } from '../../../hooks/use-toast';
 
 
@@ -160,7 +161,7 @@ export default function QRCodesPage() {
     return { selectedBranch: branch, selectedFloor: floor, tablesForSelectedFloor: tables };
   }, [selectedBranchId, selectedFloorId, settings.tables, settings.branches, settings.floors]);
 
-  const exportAllAs = useCallback(async (format: 'pdf' | 'png') => {
+  const exportAllAs = useCallback(async (format: 'pdf' | 'zip') => {
     if (!selectedBranch || !selectedFloor || tablesForSelectedFloor.length === 0) {
       toast({
         variant: 'destructive',
@@ -210,24 +211,29 @@ export default function QRCodesPage() {
         }
         pdf.save(`${selectedBranch.name}-${selectedFloor.name}-QRCodes.pdf`.toLowerCase().replace(/\s/g, '-'));
 
-    } else if (format === 'png') {
+    } else if (format === 'zip') {
+        const zip = new JSZip();
         for (const table of tablesForSelectedFloor) {
             const element = document.getElementById(`qr-card-${table.id}`);
             if (element) {
                  try {
                     const canvas = await html2canvas(element, { scale: 5, useCORS: true, backgroundColor: 'white' });
-                    const link = document.createElement('a');
-                    link.download = `${settings.companyName}-${selectedBranch.name}-${selectedFloor.name}-${table.name}-QR.png`.toLowerCase().replace(/\s/g, '-');
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    // Add a small delay between downloads to prevent browser blocking
-                    await new Promise(resolve => setTimeout(resolve, 200)); 
+                    const fileName = `${settings.companyName}-${selectedBranch.name}-${selectedFloor.name}-${table.name}-QR.png`.toLowerCase().replace(/\s/g, '-');
+                    const imgData = canvas.toDataURL('image/png').split(',')[1];
+                    zip.file(fileName, imgData, {base64: true});
                 } catch (error) {
                     console.error(`Failed to export table ${table.name} as PNG:`, error);
                     toast({ variant: 'destructive', title: 'Export Failed', description: `Could not generate PNG for table ${table.name}.` });
                 }
             }
         }
+         zip.generateAsync({ type: "blob" }).then(function(content) {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = `${selectedBranch.name}-${selectedFloor.name}-QRCodes.zip`.toLowerCase().replace(/\s/g, '-');
+            link.click();
+            URL.revokeObjectURL(link.href);
+        });
     }
     toast({
         title: 'Export Complete!',
@@ -324,8 +330,8 @@ export default function QRCodesPage() {
                                 </Select>
                             </div>
                             <div className="flex gap-2">
-                                <Button variant="secondary" onClick={() => exportAllAs('png')} disabled={tablesForSelectedFloor.length === 0}>
-                                    <FileImage className="mr-2 h-4 w-4" /> Export All as PNG
+                                <Button variant="secondary" onClick={() => exportAllAs('zip')} disabled={tablesForSelectedFloor.length === 0}>
+                                    <FileArchive className="mr-2 h-4 w-4" /> Export All as ZIP
                                 </Button>
                                 <Button variant="secondary" onClick={() => exportAllAs('pdf')} disabled={tablesForSelectedFloor.length === 0}>
                                     <FileIcon className="mr-2 h-4 w-4" /> Export All as PDF
