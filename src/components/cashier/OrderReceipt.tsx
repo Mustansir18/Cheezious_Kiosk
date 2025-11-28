@@ -2,18 +2,20 @@
 "use client";
 
 import { Order } from "@/lib/types";
-import { branches } from "@/lib/data";
 import { useSettings } from "@/context/SettingsContext";
 import { CheeziousLogo } from "../icons/CheeziousLogo";
+import useQRCode from 'next-qrcode';
 
 interface OrderReceiptProps {
     order: Order;
+    qrCodeUrl?: string;
 }
 
-export function OrderReceipt({ order }: OrderReceiptProps) {
+export function OrderReceipt({ order, qrCodeUrl }: OrderReceiptProps) {
     const { settings } = useSettings();
-    const branch = branches.find(b => b.id === order.branchId);
+    const branch = settings.branches.find(b => b.id === order.branchId);
     const table = settings.tables.find(t => t.id === order.tableId);
+    const { Image: QRCodeImage } = useQRCode();
 
     return (
         <div className="p-4 bg-white text-black font-mono text-xs w-[300px]">
@@ -25,6 +27,7 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
             </div>
             
             <div className="mb-2">
+                <p><strong>Order ID:</strong> {order.id}</p>
                 <p><strong>Order #:</strong> {order.orderNumber}</p>
                 <p><strong>Date:</strong> {new Date(order.orderDate).toLocaleString()}</p>
                 <p><strong>Type:</strong> {order.orderType}</p>
@@ -80,9 +83,29 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
                  <p className="text-center">Paid via: {order.paymentMethod}</p>
             )}
             
+            {qrCodeUrl && (
+                <div className="flex flex-col items-center justify-center mt-4">
+                     <QRCodeImage
+                        text={qrCodeUrl}
+                        options={{
+                            type: 'image/jpeg',
+                            quality: 0.9,
+                            errorCorrectionLevel: 'M',
+                            margin: 3,
+                            scale: 4,
+                            width: 150,
+                             color: {
+                                dark: '#000000FF',
+                                light: '#FFFFFFFF',
+                            },
+                        }}
+                    />
+                    <p className="text-center text-[10px] mt-1">Scan to check order status</p>
+                </div>
+            )}
+            
             <p className="text-center mt-4">Thank you for your visit!</p>
             <p className="text-center">Have a Cheezious Day!</p>
         </div>
     );
 }
-

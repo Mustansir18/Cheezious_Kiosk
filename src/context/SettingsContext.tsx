@@ -3,12 +3,22 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import type { Floor, Table, PaymentMethod } from '@/lib/types';
+import { branches as initialBranches } from '@/lib/data';
+
+interface BranchSetting {
+    id: string;
+    name: string;
+    location: string;
+    dineInEnabled: boolean;
+    takeAwayEnabled: boolean;
+}
 
 interface Settings {
     floors: Floor[];
     tables: Table[];
     paymentMethods: PaymentMethod[];
     autoPrintReceipts: boolean;
+    branches: BranchSetting[];
 }
 
 interface SettingsContextType {
@@ -21,6 +31,8 @@ interface SettingsContextType {
   addPaymentMethod: (name: string) => void;
   deletePaymentMethod: (id: string) => void;
   toggleAutoPrint: (enabled: boolean) => void;
+  updateBranch: (branchId: string, newName: string) => void;
+  toggleService: (branchId: string, service: 'dineInEnabled' | 'takeAwayEnabled', enabled: boolean) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -32,11 +44,28 @@ const defaultPaymentMethods: PaymentMethod[] = [
     { id: 'card', name: 'Credit/Debit Card' }
 ];
 
+const defaultFloors: Floor[] = [
+    { id: 'ground-floor', name: 'Ground' }
+];
+
+const defaultTables: Table[] = Array.from({ length: 10 }, (_, i) => ({
+    id: `g${i + 1}`,
+    name: `G${i + 1}`,
+    floorId: 'ground-floor'
+}));
+
+const enhancedInitialBranches: BranchSetting[] = initialBranches.map(branch => ({
+    ...branch,
+    dineInEnabled: true,
+    takeAwayEnabled: true,
+}));
+
 const initialSettings: Settings = {
-    floors: [],
-    tables: [],
+    floors: defaultFloors,
+    tables: defaultTables,
     paymentMethods: defaultPaymentMethods,
     autoPrintReceipts: false,
+    branches: enhancedInitialBranches,
 };
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
@@ -52,11 +81,18 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         // Ensure default payment methods are always present
         const customMethods = parsed.paymentMethods?.filter((pm: PaymentMethod) => !defaultPaymentMethods.some(dpm => dpm.id === pm.id)) || [];
         
+        const branches = parsed.branches?.map((b: any) => ({
+            ...b,
+            dineInEnabled: b.dineInEnabled !== false, // default to true if not set
+            takeAwayEnabled: b.takeAwayEnabled !== false, // default to true if not set
+        })) || enhancedInitialBranches;
+        
         setSettings({
-            floors: parsed.floors || [],
-            tables: parsed.tables || [],
+            floors: parsed.floors && parsed.floors.length > 0 ? parsed.floors : defaultFloors,
+            tables: parsed.tables && parsed.tables.length > 0 ? parsed.tables : defaultTables,
             paymentMethods: [...defaultPaymentMethods, ...customMethods],
             autoPrintReceipts: parsed.autoPrintReceipts || false,
+            branches: branches
         });
       } else {
         setSettings(initialSettings);
@@ -117,6 +153,20 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const toggleAutoPrint = useCallback((enabled: boolean) => {
     setSettings(s => ({...s, autoPrintReceipts: enabled }));
   }, []);
+  
+  const updateBranch = useCallback((branchId: string, newName: string) => {
+    setSettings(s => ({
+        ...s,
+        branches: s.branches.map(b => b.id === branchId ? { ...b, name: newName } : b)
+    }));
+  }, []);
+
+  const toggleService = useCallback((branchId: string, service: 'dineInEnabled' | 'takeAwayEnabled', enabled: boolean) => {
+    setSettings(s => ({
+        ...s,
+        branches: s.branches.map(b => b.id === branchId ? { ...b, [service]: enabled } : b)
+    }));
+  }, []);
 
   return (
     <SettingsContext.Provider
@@ -130,6 +180,8 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         addPaymentMethod,
         deletePaymentMethod,
         toggleAutoPrint,
+        updateBranch,
+        toggleService,
       }}
     >
       {children}

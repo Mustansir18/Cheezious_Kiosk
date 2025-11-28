@@ -9,18 +9,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Trash2 } from "lucide-react";
+import { Trash2, Edit } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/context/AuthContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
 
 export default function AdminSettingsPage() {
-    const { settings, addFloor, deleteFloor, addTable, deleteTable, addPaymentMethod, deletePaymentMethod, toggleAutoPrint } = useSettings();
+    const { settings, addFloor, deleteFloor, addTable, deleteTable, addPaymentMethod, deletePaymentMethod, toggleAutoPrint, updateBranch, toggleService } = useSettings();
+    const { user } = useAuth();
 
     const [newFloorName, setNewFloorName] = useState("");
     const [newTableName, setNewTableName] = useState("");
     const [selectedFloorForNewTable, setSelectedFloorForNewTable] = useState("");
     const [newPaymentMethodName, setNewPaymentMethodName] = useState("");
-
+    const [editingBranch, setEditingBranch] = useState<typeof settings.branches[0] | null>(null);
+    const [editingBranchName, setEditingBranchName] = useState("");
+    
     const handleAddFloor = () => {
         if (newFloorName.trim()) {
             addFloor(newFloorName.trim());
@@ -32,7 +45,6 @@ export default function AdminSettingsPage() {
         if (newTableName.trim() && selectedFloorForNewTable) {
             addTable(newTableName.trim(), selectedFloorForNewTable);
             setNewTableName("");
-            setSelectedFloorForNewTable("");
         }
     };
 
@@ -42,16 +54,75 @@ export default function AdminSettingsPage() {
             setNewPaymentMethodName("");
         }
     };
+    
+    const handleUpdateBranch = () => {
+        if (editingBranch && editingBranchName.trim()) {
+            updateBranch(editingBranch.id, editingBranchName.trim());
+            setEditingBranch(null);
+            setEditingBranchName("");
+        }
+    };
 
     const defaultPaymentMethodIds = ['cash', 'card'];
+
+    // If user is a branch admin, filter to only show their branch
+    const visibleBranches = user?.role === 'admin'
+        ? settings.branches.filter(b => b.id === user.branchId)
+        : settings.branches;
 
     return (
         <div className="container mx-auto p-4 lg:p-8 space-y-8">
             <header>
                 <h1 className="font-headline text-4xl font-bold">Admin Settings</h1>
-                <p className="text-muted-foreground">Manage restaurant floors, tables, and payment methods.</p>
+                <p className="text-muted-foreground">Manage restaurant layout, payments, and branch settings.</p>
             </header>
-            
+
+            {/* Branch Management */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Branch Management</CardTitle>
+                    <CardDescription>Configure settings for each restaurant branch.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Branch Name</TableHead>
+                                <TableHead>Dine-In</TableHead>
+                                <TableHead>Take Away</TableHead>
+                                <TableHead className="text-right w-[80px]">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {visibleBranches.map(branch => (
+                                <TableRow key={branch.id}>
+                                    <TableCell className="font-medium">{branch.name}</TableCell>
+                                    <TableCell>
+                                        <Switch
+                                            checked={branch.dineInEnabled}
+                                            onCheckedChange={(checked) => toggleService(branch.id, 'dineInEnabled', checked)}
+                                            aria-label="Toggle Dine-In"
+                                        />
+                                    </TableCell>
+                                    <TableCell>
+                                        <Switch
+                                            checked={branch.takeAwayEnabled}
+                                            onCheckedChange={(checked) => toggleService(branch.id, 'takeAwayEnabled', checked)}
+                                            aria-label="Toggle Take Away"
+                                        />
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" onClick={() => { setEditingBranch(branch); setEditingBranchName(branch.name); }}>
+                                            <Edit className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+
             {/* Printer Settings */}
             <Card>
                 <CardHeader>
@@ -179,7 +250,7 @@ export default function AdminSettingsPage() {
                         <Input
                             placeholder="New payment method (e.g., QR Pay)"
                             value={newPaymentMethodName}
-                            onChange={(e) => setNewPaymentMethodName(e.target.value)}
+                            onChange={(e) => setNewPaymentMethodName(e.g.target.value)}
                         />
                         <Button onClick={handleAddPaymentMethod}>Add Method</Button>
                     </div>
@@ -207,6 +278,29 @@ export default function AdminSettingsPage() {
                     </Table>
                 </CardContent>
             </Card>
+
+            {/* Edit Branch Dialog */}
+            <Dialog open={!!editingBranch} onOpenChange={(isOpen) => !isOpen && setEditingBranch(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Branch Name</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <Label htmlFor="branch-name">Branch Name</Label>
+                        <Input
+                            id="branch-name"
+                            value={editingBranchName}
+                            onChange={(e) => setEditingBranchName(e.target.value)}
+                        />
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="secondary">Cancel</Button>
+                        </DialogClose>
+                        <Button onClick={handleUpdateBranch}>Save</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

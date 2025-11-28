@@ -15,12 +15,13 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { useDeals } from "@/context/DealsContext";
 import Autoplay from "embla-carousel-autoplay";
-import { Loader } from "lucide-react";
-import { branches } from "@/lib/data";
+import { Loader, QrCode } from "lucide-react";
+import { useSettings } from "@/context/SettingsContext";
 
 export default function Home() {
   const { deals, isLoading } = useDeals();
-  const defaultBranch = branches.find(b => b.id === 'j3-johar-town-lahore');
+  const { settings, isLoading: isSettingsLoading } = useSettings();
+  const defaultBranch = settings.branches.find(b => b.id === 'j3-johar-town-lahore');
 
   return (
     <main className="flex min-h-screen flex-col">
@@ -32,9 +33,17 @@ export default function Home() {
         <p className="max-w-xl text-lg text-muted-foreground mt-2">
           Your seamless digital dining experience starts here.
         </p>
-        <Button asChild size="lg" className="mt-6">
-          <Link href={`/branch/${defaultBranch?.id || ''}`}>Start Your Order</Link>
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <Button asChild size="lg">
+              <Link href={`/branch/${defaultBranch?.id || ''}`}>Start Your Order</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link href="/recall-order">
+                  <QrCode className="mr-2 h-5 w-5" />
+                  Recall Order
+              </Link>
+            </Button>
+        </div>
       </div>
 
       <section className="w-full py-12 bg-muted/40">
