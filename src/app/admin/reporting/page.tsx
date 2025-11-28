@@ -1,17 +1,21 @@
 
+
 "use client";
 
 import { useOrders } from "@/context/OrderContext";
 import { useMemo, useState, useEffect } from "react";
 import type { Order } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Calendar as CalendarIcon, ShoppingCart, DollarSign, Utensils, Loader, Printer, CreditCard, ShoppingBag, FileDown } from "lucide-react";
+import { Calendar as CalendarIcon, ShoppingCart, DollarSign, Utensils, Loader, Printer, CreditCard, ShoppingBag, FileDown, Clock } from "lucide-react";
 import { HourlySalesReport } from "@/components/reporting/HourlySalesReport";
 import { TopSellingItems } from "@/components/reporting/TopSellingItems";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { format as formatDate, addDays, set } from "date-fns";
 import { cn } from "@/lib/utils";
 import jsPDF from "jspdf";
@@ -64,6 +68,7 @@ export default function ReportingPage() {
   const { orders, isLoading: isOrdersLoading } = useOrders();
   const { settings, isLoading: isSettingsLoading } = useSettings();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedHour, setSelectedHour] = useState<string>("");
 
   const { businessDayStart, businessDayEnd } = useMemo(() => {
     const [startHour, startMinute] = (settings.businessDayStart || "11:00").split(':').map(Number);
@@ -102,6 +107,7 @@ export default function ReportingPage() {
     const dineInOrders = filteredOrders.filter((o) => o.orderType === "Dine-In");
     const takeAwayOrders = filteredOrders.filter((o) => o.orderType === "Take-Away");
     const paymentMethodCounts: { [key: string]: number } = {};
+    const hourlyTopItems: { [hour: number]: { [menuItemId: string]: ItemSale } } = {};
     
     // --- Dine In Metrics ---
     const dineInSales = dineInOrders.reduce((sum, order) => sum + order.totalAmount, 0);
@@ -123,6 +129,9 @@ export default function ReportingPage() {
     for (const order of filteredOrders) {
       const hour = new Date(order.orderDate).getHours();
       hourlySales[hour] = (hourlySales[hour] || 0) + order.totalAmount;
+      if (!hourlyTopItems[hour]) {
+        hourlyTopItems[hour] = {};
+      }
 
       for (const item of order.items) {
         if (!itemSales[item.menuItemId]) {
@@ -134,6 +143,16 @@ export default function ReportingPage() {
         }
         itemSales[item.menuItemId].quantity += item.quantity;
         itemSales[item.menuItemId].totalRevenue += item.quantity * item.itemPrice;
+
+        if (!hourlyTopItems[hour][item.menuItemId]) {
+            hourlyTopItems[hour][item.menuItemId] = {
+              name: item.name,
+              quantity: 0,
+              totalRevenue: 0,
+            };
+          }
+          hourlyTopItems[hour][item.menuItemId].quantity += item.quantity;
+          hourlyTopItems[hour][item.menuItemId].totalRevenue += item.quantity * item.itemPrice;
       }
       
       if (order.paymentMethod) {
@@ -153,12 +172,18 @@ export default function ReportingPage() {
         };
     });
 
+    const hourlyTopItemsData: { [hour: number]: ItemSale[] } = {};
+    for (const hour in hourlyTopItems) {
+      hourlyTopItemsData[hour] = Object.values(hourlyTopItems[hour]).sort((a, b) => b.quantity - a.quantity);
+    }
+
     return {
       totalOrders,
       totalSales,
       totalItemsSold,
       topSellingItems,
       hourlySalesChartData,
+      hourlyTopItems: hourlyTopItemsData,
       dineInCount: dineInOrders.length,
       takeAwayCount: takeAwayOrders.length,
       dineInSales,
@@ -189,7 +214,7 @@ export default function ReportingPage() {
     const contentToPrint = reportElement.cloneNode(true) as HTMLElement;
     
     // If printing the main charts area, remove buttons from the cloned headers
-    if (reportId === 'hourly-sales-report' || reportId === 'top-items-report') {
+    if (reportId === 'hourly-sales-report' || reportId === 'top-items-report' || reportId === 'hourly-items-report') {
         const buttons = contentToPrint.querySelectorAll('.print-hidden');
         buttons.forEach(btn => btn.remove());
     }
@@ -208,7 +233,7 @@ export default function ReportingPage() {
 
   const handleDownload = (reportId: string, fileFormat: 'pdf' | 'excel') => {
     if (!reportData) return;
-    const { topSellingItems, hourlySalesChartData, ...rest } = reportData;
+    const { topSellingItems, hourlySalesChartData, hourlyTopItems, ...rest } = reportData;
     const doc = new jsPDF();
     const dateStr = `Report for Business Day of ${formatDate(selectedDate, "LLL dd, y")}`;
 
@@ -288,6 +313,14 @@ export default function ReportingPage() {
             else generateExcel(data, 'top_selling_items', 'Top Items');
             break;
         }
+        case 'hourly-items-report': {
+            const hour = parseInt(selectedHour);
+            const data = hourlyTopItems[hour]?.map(d => ({ Item: d.name, Quantity: d.quantity, Revenue: `RS ${d.totalRevenue.toFixed(2)}` })) || [];
+            const title = `Top Selling Items for Hour ${selectedHour}:00`;
+            if (fileFormat === 'pdf') generatePdf(title, [['Item', 'Quantity', 'Revenue']], data.map(Object.values));
+            else generateExcel(data, `top_items_hour_${selectedHour}`, 'Top Items by Hour');
+            break;
+        }
     }
   };
 
@@ -306,6 +339,16 @@ export default function ReportingPage() {
       window.removeEventListener('afterprint', afterPrint);
     };
   }, []);
+  
+    useEffect(() => {
+        // Set initial selected hour when data is loaded
+        if (reportData?.hourlyTopItems) {
+            const firstHourWithSales = Object.keys(reportData.hourlyTopItems)[0];
+            if (firstHourWithSales) {
+                setSelectedHour(firstHourWithSales);
+            }
+        }
+    }, [reportData?.hourlyTopItems]);
 
   const isLoading = isOrdersLoading || isSettingsLoading;
 
@@ -341,6 +384,7 @@ export default function ReportingPage() {
     totalItemsSold,
     topSellingItems,
     hourlySalesChartData,
+    hourlyTopItems,
     dineInCount,
     takeAwayCount,
     dineInSales,
@@ -555,10 +599,69 @@ export default function ReportingPage() {
                   <TopSellingItems data={topSellingItems} onPrint={() => handlePrint('top-items-report')} onDownload={(fileFormat) => handleDownload('top-items-report', fileFormat)} />
               </div>
           </div>
+          
+          <div id="hourly-items-report">
+            <Card>
+                <CardHeader className="flex-row justify-between items-center">
+                    <div className="flex-1">
+                        <CardTitle className="font-headline flex items-center"><Clock className="mr-2 h-5 w-5 text-primary"/>Top Items by Hour</CardTitle>
+                        <CardDescription>Find out which items were most popular during a specific hour.</CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Select value={selectedHour} onValueChange={setSelectedHour}>
+                            <SelectTrigger className="w-[180px] print-hidden">
+                                <SelectValue placeholder="Select an hour" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Object.keys(hourlyTopItems).map(hour => (
+                                    <SelectItem key={hour} value={hour}>{`${hour.padStart(2, '0')}:00 - ${hour.padStart(2, '0')}:59`}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <ReportCardActions reportId="hourly-items-report" onPrint={handlePrint} onDownload={handleDownload} />
+                    </div>
+                </CardHeader>
+                <CardContent>
+                     <ScrollArea className="h-[300px]">
+                        <Table>
+                            <TableHeader>
+                            <TableRow>
+                                <TableHead>Item</TableHead>
+                                <TableHead className="text-center">Qty</TableHead>
+                                <TableHead className="text-right">Revenue</TableHead>
+                            </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                            {selectedHour && hourlyTopItems[parseInt(selectedHour, 10)]?.length > 0 ? (
+                                hourlyTopItems[parseInt(selectedHour, 10)].map((item) => (
+                                <TableRow key={item.name}>
+                                    <TableCell className="font-medium">{item.name}</TableCell>
+                                    <TableCell className="text-center">{item.quantity}</TableCell>
+                                    <TableCell className="text-right">
+                                    RS {item.totalRevenue.toFixed(2)}
+                                    </TableCell>
+                                </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                                        No sales data for the selected hour, or please select an hour.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                            </TableBody>
+                        </Table>
+                     </ScrollArea>
+                </CardContent>
+            </Card>
+          </div>
+
       </div>
     </div>
   );
 }
+
+    
 
     
 
