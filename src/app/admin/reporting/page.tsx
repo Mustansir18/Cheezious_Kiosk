@@ -12,12 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { format as formatDate } from "date-fns";
+import { format as formatDate, addDays, set } from "date-fns";
 import { cn } from "@/lib/utils";
-import { DateRange } from "react-day-picker";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from 'xlsx';
+import { useSettings } from "@/context/SettingsContext";
 
 export interface ItemSale {
   name: string;
@@ -61,22 +61,32 @@ function ReportCardActions({
 
 
 export default function ReportingPage() {
-  const { orders, isLoading } = useOrders();
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(new Date().setHours(0, 0, 0, 0)),
-    to: new Date(),
-  });
+  const { orders, isLoading: isOrdersLoading } = useOrders();
+  const { settings, isLoading: isSettingsLoading } = useSettings();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+  const { businessDayStart, businessDayEnd } = useMemo(() => {
+    const [startHour, startMinute] = (settings.businessDayStart || "11:00").split(':').map(Number);
+    const [endHour, endMinute] = (settings.businessDayEnd || "04:00").split(':').map(Number);
+
+    const from = set(selectedDate, { hours: startHour, minutes: startMinute, seconds: 0, milliseconds: 0 });
+    let to = set(selectedDate, { hours: endHour, minutes: endMinute, seconds: 59, milliseconds: 999 });
+
+    // If end time is on the next day (e.g., 11:00 to 04:00)
+    if (endHour < startHour) {
+      to = addDays(to, 1);
+    }
+    
+    return { businessDayStart: from, businessDayEnd: to };
+  }, [selectedDate, settings.businessDayStart, settings.businessDayEnd]);
+
 
   const reportData = useMemo(() => {
     if (!orders) return null;
 
     const filteredOrders = orders.filter(order => {
         const orderDate = new Date(order.orderDate);
-        if (!dateRange?.from) return false;
-        // Set 'to' date to the end of the day
-        const toDate = dateRange.to ? new Date(dateRange.to) : new Date();
-        toDate.setHours(23, 59, 59, 999);
-        return orderDate >= dateRange.from && orderDate <= toDate;
+        return orderDate >= businessDayStart && orderDate <= businessDayEnd;
     });
 
     const totalOrders = filteredOrders.length;
@@ -165,7 +175,7 @@ export default function ReportingPage() {
       takeAwayCashSales,
       takeAwayCardSales,
     };
-  }, [orders, dateRange]);
+  }, [orders, businessDayStart, businessDayEnd]);
 
     const handlePrint = (reportId: string) => {
     const reportElement = document.getElementById(reportId);
@@ -200,7 +210,7 @@ export default function ReportingPage() {
     if (!reportData) return;
     const { topSellingItems, hourlySalesChartData, ...rest } = reportData;
     const doc = new jsPDF();
-    const dateStr = `Report for ${formatDate(dateRange?.from || new Date(), "LLL dd, y")} - ${formatDate(dateRange?.to || new Date(), "LLL dd, y")}`;
+    const dateStr = `Report for Business Day of ${formatDate(selectedDate, "LLL dd, y")}`;
 
     const generatePdf = (title: string, head: any[], body: any[]) => {
         doc.text(title, 14, 15);
@@ -297,6 +307,7 @@ export default function ReportingPage() {
     };
   }, []);
 
+  const isLoading = isOrdersLoading || isSettingsLoading;
 
   if (isLoading) {
     return (
@@ -379,7 +390,7 @@ export default function ReportingPage() {
       <header className="mb-8 flex flex-col md:flex-row justify-between items-start gap-4">
         <div>
             <h1 className="font-headline text-4xl font-bold">Admin Reports</h1>
-            <p className="text-muted-foreground">Sales data for the selected period.</p>
+            <p className="text-muted-foreground">Sales data for the selected business day.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
             <Popover>
@@ -388,33 +399,25 @@ export default function ReportingPage() {
                   id="date"
                   variant={"outline"}
                   className={cn(
-                    "w-full sm:w-[300px] justify-start text-left font-normal",
-                    !dateRange && "text-muted-foreground"
+                    "w-full sm:w-[240px] justify-start text-left font-normal",
+                    !selectedDate && "text-muted-foreground"
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateRange?.from ? (
-                    dateRange.to ? (
-                      <>
-                        {formatDate(dateRange.from, "LLL dd, y")} -{" "}
-                        {formatDate(dateRange.to, "LLL dd, y")}
-                      </>
-                    ) : (
-                      formatDate(dateRange.from, "LLL dd, y")
-                    )
+                  {selectedDate ? (
+                    formatDate(selectedDate, "LLL dd, y")
                   ) : (
-                    <span>Pick a date range</span>
+                    <span>Pick a date</span>
                   )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="end">
                 <Calendar
                   initialFocus
-                  mode="range"
-                  defaultMonth={dateRange?.from}
-                  selected={dateRange}
-                  onSelect={setDateRange}
-                  numberOfMonths={2}
+                  mode="single"
+                  defaultMonth={selectedDate}
+                  selected={selectedDate}
+                  onSelect={(date) => date && setSelectedDate(date)}
                 />
               </PopoverContent>
             </Popover>
@@ -556,5 +559,7 @@ export default function ReportingPage() {
     </div>
   );
 }
+
+    
 
     

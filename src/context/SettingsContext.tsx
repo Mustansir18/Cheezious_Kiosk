@@ -19,6 +19,8 @@ interface Settings {
     paymentMethods: PaymentMethod[];
     autoPrintReceipts: boolean;
     branches: BranchSetting[];
+    businessDayStart: string;
+    businessDayEnd: string;
 }
 
 interface SettingsContextType {
@@ -33,6 +35,7 @@ interface SettingsContextType {
   toggleAutoPrint: (enabled: boolean) => void;
   updateBranch: (branchId: string, newName: string) => void;
   toggleService: (branchId: string, service: 'dineInEnabled' | 'takeAwayEnabled', enabled: boolean) => void;
+  updateBusinessDayHours: (start: string, end: string) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -66,6 +69,8 @@ const initialSettings: Settings = {
     paymentMethods: defaultPaymentMethods,
     autoPrintReceipts: false,
     branches: enhancedInitialBranches,
+    businessDayStart: '11:00',
+    businessDayEnd: '04:00',
 };
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
@@ -92,7 +97,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
             tables: parsed.tables && parsed.tables.length > 0 ? parsed.tables : defaultTables,
             paymentMethods: [...defaultPaymentMethods, ...customMethods],
             autoPrintReceipts: parsed.autoPrintReceipts || false,
-            branches: branches
+            branches: branches,
+            businessDayStart: parsed.businessDayStart || initialSettings.businessDayStart,
+            businessDayEnd: parsed.businessDayEnd || initialSettings.businessDayEnd,
         });
       } else {
         setSettings(initialSettings);
@@ -168,6 +175,10 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     }));
   }, []);
 
+  const updateBusinessDayHours = useCallback((start: string, end: string) => {
+    setSettings(s => ({...s, businessDayStart: start, businessDayEnd: end }));
+  }, []);
+
   return (
     <SettingsContext.Provider
       value={{
@@ -182,6 +193,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         toggleAutoPrint,
         updateBranch,
         toggleService,
+        updateBusinessDayHours,
       }}
     >
       {children}
@@ -196,3 +208,5 @@ export const useSettings = () => {
   }
   return context;
 };
+
+    

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSettings } from "@/context/SettingsContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/dialog';
 
 export default function AdminSettingsPage() {
-    const { settings, addFloor, deleteFloor, addTable, deleteTable, addPaymentMethod, deletePaymentMethod, toggleAutoPrint, updateBranch, toggleService } = useSettings();
+    const { settings, addFloor, deleteFloor, addTable, deleteTable, addPaymentMethod, deletePaymentMethod, toggleAutoPrint, updateBranch, toggleService, updateBusinessDayHours } = useSettings();
     const { user } = useAuth();
 
     const [newFloorName, setNewFloorName] = useState("");
@@ -34,6 +34,15 @@ export default function AdminSettingsPage() {
     const [editingBranch, setEditingBranch] = useState<typeof settings.branches[0] | null>(null);
     const [editingBranchName, setEditingBranchName] = useState("");
     
+    const [businessDayStart, setBusinessDayStart] = useState(settings.businessDayStart);
+    const [businessDayEnd, setBusinessDayEnd] = useState(settings.businessDayEnd);
+
+    useEffect(() => {
+        setBusinessDayStart(settings.businessDayStart);
+        setBusinessDayEnd(settings.businessDayEnd);
+    }, [settings.businessDayStart, settings.businessDayEnd]);
+
+
     const handleAddFloor = () => {
         if (newFloorName.trim()) {
             addFloor(newFloorName.trim());
@@ -61,6 +70,10 @@ export default function AdminSettingsPage() {
             setEditingBranch(null);
             setEditingBranchName("");
         }
+    };
+    
+    const handleSaveBusinessHours = () => {
+        updateBusinessDayHours(businessDayStart, businessDayEnd);
     };
 
     const defaultPaymentMethodIds = ['cash', 'card'];
@@ -120,6 +133,40 @@ export default function AdminSettingsPage() {
                             ))}
                         </TableBody>
                     </Table>
+                </CardContent>
+            </Card>
+
+            {/* Business Day Settings */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Business Day Configuration</CardTitle>
+                    <CardDescription>Set the start and end time for your business day for reporting purposes.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                     <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="business-day-start">Business Day Start Time</Label>
+                            <Input
+                                id="business-day-start"
+                                type="time"
+                                value={businessDayStart}
+                                onChange={(e) => setBusinessDayStart(e.target.value)}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                             <Label htmlFor="business-day-end">Business Day End Time</Label>
+                             <Input
+                                id="business-day-end"
+                                type="time"
+                                value={businessDayEnd}
+                                onChange={(e) => setBusinessDayEnd(e.target.value)}
+                            />
+                        </div>
+                         <Button onClick={handleSaveBusinessHours}>Save Business Hours</Button>
+                     </div>
+                     <p className="text-sm text-muted-foreground">
+                        For a business day that spans across midnight (e.g., 11:00 AM to 4:00 AM), reports will include sales from the start time on the selected date to the end time on the following day.
+                     </p>
                 </CardContent>
             </Card>
 
@@ -250,7 +297,7 @@ export default function AdminSettingsPage() {
                         <Input
                             placeholder="New payment method (e.g., QR Pay)"
                             value={newPaymentMethodName}
-                            onChange={(e) => setNewPaymentMethodName(e.g.target.value)}
+                            onChange={(e) => setNewPaymentMethodName(e.target.value)}
                         />
                         <Button onClick={handleAddPaymentMethod}>Add Method</Button>
                     </div>
@@ -304,3 +351,5 @@ export default function AdminSettingsPage() {
         </div>
     );
 }
+
+    
