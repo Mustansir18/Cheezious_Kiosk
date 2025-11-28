@@ -74,7 +74,7 @@ Follow these steps to deploy the application on your server.
    ```powershell
    npm run build
    ```
-   The `build` script in `package.json` is configured to work correctly in Windows environments.
+   The `build` script in `package.json` is now configured to work correctly in Windows environments.
 
 ### Step 2.2: Run the Application with PM2
 1. **Start the App:** In the application directory, start the Next.js application using PM2. This command will start the app, name it `cheezious-connect`, and listen on port `9002`.
