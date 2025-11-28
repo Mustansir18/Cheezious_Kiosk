@@ -77,6 +77,13 @@ export default function OrderStatusPage() {
   const status = order?.status;
   const isLoading = isOrdersLoading || isSettingsLoading || !order;
 
+  const qrCodeUrl = useMemo(() => {
+    if (isClient && order) {
+      return `${window.location.origin}/order-status?orderNumber=${order.orderNumber}`;
+    }
+    return '';
+  }, [isClient, order]);
+
   // 3. Handle manual printing
   const handlePrint = useCallback(() => {
     resetIdleTimer(); // Reset timer on interaction
@@ -246,7 +253,7 @@ export default function OrderStatusPage() {
       {/* Hidden receipt for printing */}
       <div className="hidden">
           <div id={`printable-receipt-${order.id}`}>
-              <OrderReceipt order={order} />
+              <OrderReceipt order={order} qrCodeUrl={qrCodeUrl}/>
           </div>
       </div>
     </div>
