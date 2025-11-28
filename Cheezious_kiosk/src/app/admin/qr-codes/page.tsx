@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQRCode } from 'next-qrcode';
 import { useSettings } from '@/context/SettingsContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -10,15 +10,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Utensils, ShoppingBag, Printer } from 'lucide-react';
 import { CheeziousLogo } from '@/components/icons/CheeziousLogo';
+import type { Table, Floor } from '@/lib/types';
 
-function QRCodeDisplay({ title, icon: Icon, url, companyName, branchName }: { title: string; icon: React.ElementType; url: string; companyName: string; branchName: string }) {
+interface QRCodeDisplayProps {
+  title: string;
+  subtitle?: string;
+  icon: React.ElementType;
+  url: string;
+  companyName: string;
+  branchName: string;
+}
+
+
+function QRCodeDisplay({ title, subtitle, icon: Icon, url, companyName, branchName }: QRCodeDisplayProps) {
   const { Image: QRCodeImage } = useQRCode();
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl printable-area">
+    <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl printable-area break-inside-avoid">
       <CheeziousLogo className="h-16 w-16 mx-auto text-primary" />
-      <h3 className="mt-4 text-2xl font-bold font-headline">{companyName}</h3>
-      <p className="text-muted-foreground">{branchName}</p>
+      <h3 className="mt-4 text-2xl font-bold font-headline text-center">{companyName}</h3>
+      <p className="text-muted-foreground text-center">{branchName}</p>
       
       <div className="my-6">
         <QRCodeImage
@@ -36,8 +47,9 @@ function QRCodeDisplay({ title, icon: Icon, url, companyName, branchName }: { ti
       </div>
 
       <div className="text-center">
-        <Icon className="mx-auto h-12 w-12 text-primary" />
+        <Icon className="mx-auto h-10 w-10 text-primary" />
         <h4 className="mt-2 text-xl font-semibold">{title}</h4>
+        {subtitle && <p className="text-lg font-bold">{subtitle}</p>}
         <p className="text-muted-foreground">Scan this code to begin your order.</p>
       </div>
     </div>
@@ -51,7 +63,6 @@ export default function QRCodesPage() {
   const [origin, setOrigin] = useState('');
 
   useEffect(() => {
-    // Ensure this runs only on the client
     if (typeof window !== 'undefined') {
       setOrigin(window.location.origin);
       if (settings.branches.length > 0) {
@@ -64,13 +75,34 @@ export default function QRCodesPage() {
     window.print();
   };
 
-  const selectedBranch = settings.branches.find(b => b.id === selectedBranchId);
+  const { selectedBranch, tablesByFloor } = useMemo(() => {
+    const branch = settings.branches.find(b => b.id === selectedBranchId);
+    if (!branch) return { selectedBranch: null, tablesByFloor: new Map() };
+
+    const tablesForBranch = settings.tables;
+    const floorsForBranch = settings.floors;
+
+    const floorMap = new Map<string, Floor>(floorsForBranch.map(f => [f.id, f]));
+    const groupedTables = new Map<Floor, Table[]>();
+
+    tablesForBranch.forEach(table => {
+        const floor = floorMap.get(table.floorId);
+        if(floor){
+            if (!groupedTables.has(floor)) {
+                groupedTables.set(floor, []);
+            }
+            groupedTables.get(floor)!.push(table);
+        }
+    });
+
+    return { selectedBranch: branch, tablesByFloor: groupedTables };
+  }, [selectedBranchId, settings]);
+
 
   if (isLoading || !origin) {
     return <div>Loading...</div>;
   }
 
-  const dineInUrl = `${origin}/branch/${selectedBranchId}?mode=Dine-In`;
   const takeAwayUrl = `${origin}/branch/${selectedBranchId}?mode=Take-Away`;
 
   return (
@@ -79,11 +111,11 @@ export default function QRCodesPage() {
         <div>
           <h1 className="font-headline text-4xl font-bold">Printable QR Codes</h1>
           <p className="text-muted-foreground">
-            Generate and print QR codes for customers to start their Dine-In or Take-Away orders.
+            Generate and print QR codes for each table and for Take Away orders.
           </p>
         </div>
         <Button onClick={handlePrint}>
-            <Printer className="mr-2 h-4 w-4" /> Print Codes
+            <Printer className="mr-2 h-4 w-4" /> Print All Codes for Branch
         </Button>
       </header>
 
@@ -106,14 +138,7 @@ export default function QRCodesPage() {
       </Card>
       
       {selectedBranch && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <QRCodeDisplay
-                title="Dine-In"
-                icon={Utensils}
-                url={dineInUrl}
-                companyName={settings.companyName}
-                branchName={selectedBranch.name}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <QRCodeDisplay
                 title="Take Away"
                 icon={ShoppingBag}
@@ -121,8 +146,22 @@ export default function QRCodesPage() {
                 companyName={settings.companyName}
                 branchName={selectedBranch.name}
             />
+            {Array.from(tablesByFloor.entries()).map(([floor, tables]) => (
+                tables.map(table => (
+                    <QRCodeDisplay
+                        key={table.id}
+                        title="Dine-In"
+                        subtitle={`${floor.name} - ${table.name}`}
+                        icon={Utensils}
+                        url={`${origin}/branch/${selectedBranchId}?mode=Dine-In&tableId=${table.id}&floorId=${floor.id}`}
+                        companyName={settings.companyName}
+                        branchName={selectedBranch.name}
+                    />
+                ))
+            ))}
           </div>
       )}
     </div>
   );
 }
+

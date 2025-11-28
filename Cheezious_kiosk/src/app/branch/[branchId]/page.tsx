@@ -3,7 +3,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Utensils, ShoppingBag, Loader } from "lucide-react";
 import { useSettings } from "@/context/SettingsContext";
@@ -13,18 +13,25 @@ export default function ModeSelectionPage({ params }: { params: { branchId: stri
   const router = useRouter();
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode");
+  const tableId = searchParams.get("tableId");
+  const floorId = searchParams.get("floorId");
+  const branchId = params.branchId;
 
-  const branch = settings.branches.find((b) => b.id === params.branchId);
+  const branch = settings.branches.find((b) => b.id === branchId);
 
   useEffect(() => {
     if (!isLoading && branch) {
-      if (mode === "Dine-In" && branch.dineInEnabled) {
-        router.replace(`/branch/${params.branchId}/table-selection`);
+      if (mode === "Dine-In" && tableId && floorId && branch.dineInEnabled) {
+        // If table and floor are specified, go directly to menu
+        router.replace(`/branch/${branchId}/menu?mode=Dine-In&tableId=${tableId}&floorId=${floorId}`);
+      } else if (mode === "Dine-In" && branch.dineInEnabled) {
+         // If just Dine-in, go to table selection
+        router.replace(`/branch/${branchId}/table-selection`);
       } else if (mode === "Take-Away" && branch.takeAwayEnabled) {
-        router.replace(`/branch/${params.branchId}/menu?mode=Take-Away`);
+        router.replace(`/branch/${branchId}/menu?mode=Take-Away`);
       }
     }
-  }, [mode, isLoading, branch, params.branchId, router]);
+  }, [mode, tableId, floorId, isLoading, branch, branchId, router]);
 
   if (isLoading || mode) {
     return (
@@ -46,7 +53,7 @@ export default function ModeSelectionPage({ params }: { params: { branchId: stri
 
       <div className="mt-10 grid w-full max-w-2xl grid-cols-1 gap-8 md:grid-cols-2">
         {branch?.dineInEnabled && (
-          <Link href={`/branch/${params.branchId}/table-selection`}>
+          <Link href={`/branch/${branchId}/table-selection`}>
             <Card className="transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <CardHeader>
                 <Utensils className="mx-auto h-16 w-16 text-primary" />
@@ -62,7 +69,7 @@ export default function ModeSelectionPage({ params }: { params: { branchId: stri
         )}
 
         {branch?.takeAwayEnabled && (
-          <Link href={`/branch/${params.branchId}/menu?mode=Take-Away`}>
+          <Link href={`/branch/${branchId}/menu?mode=Take-Away`}>
             <Card className="transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <CardHeader>
                 <ShoppingBag className="mx-auto h-16 w-16 text-primary" />
