@@ -11,19 +11,19 @@ import { QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function RecallOrderPage() {
-  const [orderId, setOrderId] = useState('');
+  const [orderNumber, setOrderNumber] = useState('');
   const router = useRouter();
   const { toast } = useToast();
 
   const handleRecallOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    if (orderId.trim()) {
-      router.push(`/order-status?orderId=${orderId.trim()}`);
+    if (orderNumber.trim()) {
+      router.push(`/order-status?orderNumber=${orderNumber.trim()}`);
     } else {
       toast({
         variant: 'destructive',
-        title: 'Order ID Required',
-        description: 'Please enter an order ID to recall an order.',
+        title: 'Order Number Required',
+        description: 'Please enter an order number to recall an order.',
       });
     }
   };
@@ -35,16 +35,16 @@ export default function RecallOrderPage() {
           <CardHeader className="text-center">
             <QrCode className="mx-auto h-16 w-auto text-primary" />
             <CardTitle className="font-headline text-2xl">Recall Your Order</CardTitle>
-            <CardDescription>Enter your Order ID below to check its status.</CardDescription>
+            <CardDescription>Enter your Order Number below to check its status.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="orderId">Order ID</Label>
+              <Label htmlFor="orderNumber">Order Number</Label>
               <Input
-                id="orderId"
-                value={orderId}
-                onChange={(e) => setOrderId(e.target.value)}
-                placeholder="Enter the ID from your receipt"
+                id="orderNumber"
+                value={orderNumber}
+                onChange={(e) => setOrderNumber(e.target.value)}
+                placeholder="Enter the number from your receipt"
                 required
               />
             </div>

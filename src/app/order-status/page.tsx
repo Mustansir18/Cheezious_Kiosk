@@ -24,11 +24,9 @@ export default function OrderStatusPage() {
   const { settings, isLoading: isSettingsLoading } = useSettings();
   const printTriggered = useRef(false);
   const idleTimer = useRef<NodeJS.Timeout>();
-
-  const { Image: QRCodeImage } = useQRCode();
   
   // Get order ID from either session storage or URL param
-  const orderIdFromUrl = searchParams.get('orderId');
+  const orderNumberFromUrl = searchParams.get('orderNumber');
   
   const resetToHome = useCallback(() => {
     sessionStorage.removeItem("placedOrder");
@@ -50,7 +48,7 @@ export default function OrderStatusPage() {
   useEffect(() => {
     if (!isClient) return;
 
-    if (orderIdFromUrl) {
+    if (orderNumberFromUrl) {
       // If orderId is in the URL, we'll rely on the full order object being found in the context
       return;
     }
@@ -67,14 +65,14 @@ export default function OrderStatusPage() {
       console.error("Could not load order from session storage", error);
       router.replace('/');
     }
-  }, [router, orderIdFromUrl, isClient]);
+  }, [router, orderNumberFromUrl, isClient]);
 
   // 2. Find the full order object from the context
   const order: Order | undefined = useMemo(() => {
-    const targetOrderId = orderIdFromUrl || placedOrder?.orderId;
-    if (!targetOrderId) return undefined;
-    return orders.find(o => o.id === targetOrderId);
-  }, [orders, placedOrder, orderIdFromUrl]);
+    const targetOrderNumber = orderNumberFromUrl || placedOrder?.orderNumber;
+    if (!targetOrderNumber) return undefined;
+    return orders.find(o => o.orderNumber === targetOrderNumber);
+  }, [orders, placedOrder, orderNumberFromUrl]);
 
   const status = order?.status;
   const isLoading = isOrdersLoading || isSettingsLoading || !order;
@@ -105,11 +103,11 @@ export default function OrderStatusPage() {
   // 4. Handle automatic printing
   useEffect(() => {
     // Auto-print only if we came from checkout (i.e., not from a QR scan)
-    if (!isLoading && order && settings.autoPrintReceipts && !printTriggered.current && !orderIdFromUrl) {
+    if (!isLoading && order && settings.autoPrintReceipts && !printTriggered.current && !orderNumberFromUrl) {
         printTriggered.current = true;
         handlePrint();
     }
-  }, [isLoading, order, settings.autoPrintReceipts, handlePrint, orderIdFromUrl]);
+  }, [isLoading, order, settings.autoPrintReceipts, handlePrint, orderNumberFromUrl]);
 
 
   // 5. Play a sound when the order is ready
@@ -132,7 +130,7 @@ export default function OrderStatusPage() {
   // 6. Set up idle timer and activity listeners
   useEffect(() => {
       // Only set up idle timer if we didn't arrive via QR code
-      if(orderIdFromUrl) return;
+      if(orderNumberFromUrl) return;
 
       resetIdleTimer();
       // Add event listeners for user activity
@@ -151,7 +149,7 @@ export default function OrderStatusPage() {
           window.removeEventListener('keypress', resetIdleTimer);
           window.removeEventListener('touchstart', resetIdleTimer);
       };
-  }, [resetIdleTimer, orderIdFromUrl]);
+  }, [resetIdleTimer, orderNumberFromUrl]);
 
   if (!isClient) {
       return null;
@@ -172,7 +170,7 @@ export default function OrderStatusPage() {
        <div className="flex h-screen items-center justify-center text-center">
         <div>
             <h1 className="text-xl font-bold">Order Not Found</h1>
-            <p className="text-muted-foreground">Could not find details for this order ID.</p>
+            <p className="text-muted-foreground">Could not find details for this order number.</p>
             <Button onClick={resetToHome} className="mt-4">New Order</Button>
         </div>
        </div>
@@ -182,8 +180,6 @@ export default function OrderStatusPage() {
 
   const isOrderActive = status === 'Pending' || status === 'Preparing';
   const isOrderReady = status === 'Ready';
-  
-  const qrCodeUrl = `${window.location.origin}/order-status?orderId=${order.id}`;
 
   return (
     <div className="container mx-auto flex min-h-screen items-center justify-center p-4">
@@ -223,26 +219,6 @@ export default function OrderStatusPage() {
             {placedOrder?.tableName && <p><strong>Table:</strong> {placedOrder.tableName}</p>}
             <p><strong>Total:</strong> <span className="font-bold">RS {order.totalAmount.toFixed(2)}</span></p>
           </div>
-
-          <div className="mt-6 flex flex-col items-center justify-center">
-             <QRCodeImage
-                text={qrCodeUrl}
-                options={{
-                    type: 'image/jpeg',
-                    quality: 0.9,
-                    errorCorrectionLevel: 'M',
-                    margin: 3,
-                    scale: 4,
-                    width: 150,
-                    color: {
-                        dark: '#000000FF',
-                        light: '#FFFFFFFF',
-                    },
-                }}
-            />
-            <p className="text-xs text-muted-foreground mt-2">Scan to check order status</p>
-          </div>
-
         </CardContent>
         <CardFooter className="grid gap-2 grid-cols-2">
           <Button
@@ -270,7 +246,7 @@ export default function OrderStatusPage() {
       {/* Hidden receipt for printing */}
       <div className="hidden">
           <div id={`printable-receipt-${order.id}`}>
-              <OrderReceipt order={order} qrCodeUrl={qrCodeUrl} />
+              <OrderReceipt order={order} />
           </div>
       </div>
     </div>

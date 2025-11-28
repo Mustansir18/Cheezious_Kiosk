@@ -132,7 +132,7 @@ export default function OrderConfirmationPage() {
 
         sessionStorage.setItem('placedOrder', JSON.stringify(placedOrder));
         clearCart();
-        router.push("/order-status");
+        router.push(`/order-status?orderNumber=${newOrder.orderNumber}`);
 
     } catch (error) {
         console.error("Failed to place order:", error);
