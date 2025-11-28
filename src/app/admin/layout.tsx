@@ -21,7 +21,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import { CheeziousLogo } from '@/components/icons/CheeziousLogo';
 import { useAuth } from '@/context/AuthContext';
 import { AdminRouteGuard } from '@/components/auth/AdminRouteGuard';
 import { usePathname } from 'next/navigation';
@@ -53,7 +52,7 @@ function AdminSidebar() {
           href="/"
           className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
         >
-          <CheeziousLogo className="h-5 w-5 transition-all group-hover:scale-110" />
+          <Package className="h-5 w-5 transition-all group-hover:scale-110" />
           <span className="sr-only">{settings.companyName}</span>
         </Link>
         <TooltipProvider>

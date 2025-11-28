@@ -2,9 +2,8 @@
 'use client';
 
 import Link from 'next/link';
-import { CheeziousLogo } from '@/components/icons/CheeziousLogo';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { LogOut, Package } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { CashierRouteGuard } from '@/components/auth/CashierRouteGuard';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -17,7 +16,7 @@ function CashierHeader() {
         <header className="sticky top-0 z-40 w-full border-b bg-background">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
                 <Link href="/" className="flex items-center gap-2">
-                <CheeziousLogo className="h-8 w-8" />
+                <Package className="h-8 w-8" />
                 <span className="hidden font-headline text-xl font-bold text-primary sm:inline-block">
                     {settings.companyName}
                 </span>

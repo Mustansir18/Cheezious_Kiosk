@@ -4,7 +4,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { CheeziousLogo } from "@/components/icons/CheeziousLogo";
 import {
   Carousel,
   CarouselContent,
@@ -15,7 +14,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { useDeals } from "@/context/DealsContext";
 import Autoplay from "embla-carousel-autoplay";
-import { Loader, QrCode } from "lucide-react";
+import { Loader, QrCode, Pizza } from "lucide-react";
 import { useSettings } from "@/context/SettingsContext";
 
 export default function Home() {
@@ -27,7 +26,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col">
       <div className="container mx-auto flex flex-col items-center justify-center p-4 text-center flex-grow">
-        <CheeziousLogo className="h-24 w-auto text-primary" />
+        <Pizza className="h-24 w-auto text-primary" />
         <h1 className="font-headline text-4xl font-bold tracking-tight text-primary md:text-5xl mt-4">
           Welcome to {settings.companyName}
         </h1>
@@ -108,5 +107,3 @@ export default function Home() {
     </main>
   );
 }
-
-    
