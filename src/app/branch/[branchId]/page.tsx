@@ -3,7 +3,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Utensils, ShoppingBag, Loader } from "lucide-react";
 import { useSettings } from "@/context/SettingsContext";
@@ -13,20 +13,27 @@ export default function ModeSelectionPage({ params }: { params: { branchId: stri
   const router = useRouter();
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode");
+  const tableId = searchParams.get("tableId");
+  const floorId = searchParams.get("floorId");
+  const branchId = params.branchId;
 
-  const branch = settings.branches.find((b) => b.id === params.branchId);
+  const branch = settings.branches.find((b) => b.id === branchId);
 
   useEffect(() => {
     if (!isLoading && branch) {
-      if (mode === "Dine-In" && branch.dineInEnabled) {
-        router.replace(`/branch/${params.branchId}/table-selection`);
-      } else if (mode === "Take-Away" && branch.takeAwayEnabled) {
-        router.replace(`/branch/${params.branchId}/menu?mode=Take-Away`);
+      // Direct redirection for table-specific QR code
+      if (mode === "Dine-In" && tableId && floorId && branch.dineInEnabled) {
+        router.replace(`/branch/${branchId}/menu?mode=Dine-In&tableId=${tableId}&floorId=${floorId}`);
+      } 
+      // Direct redirection for general Take Away QR code
+      else if (mode === "Take-Away" && branch.takeAwayEnabled) {
+        router.replace(`/branch/${branchId}/menu?mode=Take-Away`);
       }
+      // Do nothing if no mode is specified, allowing the user to choose.
     }
-  }, [mode, isLoading, branch, params.branchId, router]);
+  }, [mode, tableId, floorId, isLoading, branch, branchId, router]);
 
-  if (isLoading || mode) {
+  if (isLoading || (mode && ( (mode === "Dine-In" && tableId && floorId) || mode === "Take-Away") )) {
     return (
         <div className="container mx-auto flex flex-col items-center justify-center px-4 py-12 text-center h-[calc(100vh-4rem)]">
             <Loader className="h-12 w-12 animate-spin text-primary" />
@@ -46,7 +53,7 @@ export default function ModeSelectionPage({ params }: { params: { branchId: stri
 
       <div className="mt-10 grid w-full max-w-2xl grid-cols-1 gap-8 md:grid-cols-2">
         {branch?.dineInEnabled && (
-          <Link href={`/branch/${params.branchId}/table-selection`}>
+          <Link href={`/branch/${branchId}/table-selection`}>
             <Card className="transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <CardHeader>
                 <Utensils className="mx-auto h-16 w-16 text-primary" />
@@ -62,7 +69,7 @@ export default function ModeSelectionPage({ params }: { params: { branchId: stri
         )}
 
         {branch?.takeAwayEnabled && (
-          <Link href={`/branch/${params.branchId}/menu?mode=Take-Away`}>
+          <Link href={`/branch/${branchId}/menu?mode=Take-Away`}>
             <Card className="transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
               <CardHeader>
                 <ShoppingBag className="mx-auto h-16 w-16 text-primary" />

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useSearchParams, useParams } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import type { OrderType } from "@/lib/types";
@@ -33,8 +33,16 @@ export default function MenuPage() {
 
   useEffect(() => {
     const mode = searchParams.get("mode") as OrderType;
+    const tableId = searchParams.get("tableId");
+    const floorId = searchParams.get("floorId");
+
     if (mode && branchId) {
-      setOrderDetails({ branchId: branchId, orderType: mode });
+      setOrderDetails({ 
+        branchId: branchId, 
+        orderType: mode,
+        ...(tableId && { tableId }),
+        ...(floorId && { floorId }),
+      });
     }
   }, [searchParams, branchId, setOrderDetails]);
 

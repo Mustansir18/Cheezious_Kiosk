@@ -21,19 +21,19 @@ export default function ModeSelectionPage({ params }: { params: { branchId: stri
 
   useEffect(() => {
     if (!isLoading && branch) {
+      // Direct redirection for table-specific QR code
       if (mode === "Dine-In" && tableId && floorId && branch.dineInEnabled) {
-        // If table and floor are specified, go directly to menu
         router.replace(`/branch/${branchId}/menu?mode=Dine-In&tableId=${tableId}&floorId=${floorId}`);
-      } else if (mode === "Dine-In" && branch.dineInEnabled) {
-         // If just Dine-in, go to table selection
-        router.replace(`/branch/${branchId}/table-selection`);
-      } else if (mode === "Take-Away" && branch.takeAwayEnabled) {
+      } 
+      // Direct redirection for general Take Away QR code
+      else if (mode === "Take-Away" && branch.takeAwayEnabled) {
         router.replace(`/branch/${branchId}/menu?mode=Take-Away`);
       }
+      // Do nothing if no mode is specified, allowing the user to choose.
     }
   }, [mode, tableId, floorId, isLoading, branch, branchId, router]);
 
-  if (isLoading || mode) {
+  if (isLoading || (mode && ( (mode === "Dine-In" && tableId && floorId) || mode === "Take-Away") )) {
     return (
         <div className="container mx-auto flex flex-col items-center justify-center px-4 py-12 text-center h-[calc(100vh-4rem)]">
             <Loader className="h-12 w-12 animate-spin text-primary" />
