@@ -8,14 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Utensils, ShoppingBag, Loader } from "lucide-react";
 import { useSettings } from "@/context/SettingsContext";
 
-export default function ModeSelectionPage({ params }: { params: { branchId: string } }) {
+export default function ModeSelectionPage() {
   const { settings, isLoading } = useSettings();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const params = useParams();
+  
   const mode = searchParams.get("mode");
   const tableId = searchParams.get("tableId");
   const floorId = searchParams.get("floorId");
-  const branchId = params.branchId;
+  const branchId = params.branchId as string;
 
   const branch = settings.branches.find((b) => b.id === branchId);
 

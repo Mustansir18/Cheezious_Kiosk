@@ -4,6 +4,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { User, UserRole } from '@/lib/types';
+import { useSettings } from './SettingsContext';
 
 // Define the shape of the context
 interface AuthContextType {
@@ -27,7 +28,7 @@ const defaultUsers: User[] = [
   {
     id: 'root-user',
     username: 'root',
-    password: 'Faith123$$',
+    password: 'Faith123##',
     role: 'root',
   },
   {

@@ -44,8 +44,8 @@ export function OrderReceipt({ order, qrCodeUrl }: OrderReceiptProps) {
                 <tbody>
                     {order.items.map(item => (
                         <tr key={item.id}>
-                            <td className="align-top pr-2">{item.quantity}</td>
-                            <td className="align-top">{item.name}</td>
+                            <td className="align-top pr-2 text-left">{item.quantity}</td>
+                            <td className="align-top text-left">{item.name}</td>
                             <td className="text-right align-top">{(item.itemPrice * item.quantity).toFixed(2)}</td>
                         </tr>
                     ))}
@@ -110,4 +110,3 @@ export function OrderReceipt({ order, qrCodeUrl }: OrderReceiptProps) {
         </div>
     );
 }
-

@@ -39,7 +39,6 @@ interface OrderCardProps {
 
 export function OrderCard({ order, workflow = 'cashier', onUpdateStatus, children }: OrderCardProps) {
   const { settings } = useSettings();
-  const receiptRef = useRef<HTMLDivElement>(null);
   const [origin, setOrigin] = useState('');
   
   useEffect(() => {
@@ -52,13 +51,18 @@ export function OrderCard({ order, workflow = 'cashier', onUpdateStatus, childre
     onUpdateStatus(order.id, newStatus);
   };
 
-  const qrCodeUrl = origin ? `${origin}/order-status?orderNumber=${order.orderNumber}` : '';
+  const qrCodeUrl = useMemo(() => {
+      if (origin && order.orderNumber) {
+        return `${origin}/order-status?orderNumber=${order.orderNumber}`;
+      }
+      return '';
+  }, [origin, order.orderNumber]);
+
 
   const handlePrint = () => {
     const printableArea = document.getElementById(`printable-receipt-${order.id}`);
     if (!printableArea) return;
 
-    // Temporarily append to a visible part of the body to print
     const printContainer = document.createElement('div');
     printContainer.id = 'printable-area';
     printContainer.appendChild(printableArea.cloneNode(true));
