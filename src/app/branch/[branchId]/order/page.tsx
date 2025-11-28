@@ -1,0 +1,242 @@
+
+"use client";
+
+import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useCart } from "@/context/CartContext";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
+import { branches } from "@/lib/data";
+import type { PlacedOrder, Order, OrderItem } from "@/lib/types";
+import { syncOrderToExternalSystem } from "@/ai/flows/sync-order-flow";
+import { useOrders } from "@/context/OrderContext";
+import { useToast } from "@/hooks/use-toast";
+import { useSettings } from "@/context/SettingsContext";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader } from "lucide-react";
+
+const FALLBACK_IMAGE_URL = "https://picsum.photos/seed/placeholder/400/300";
+
+export default function OrderConfirmationPage() {
+  const { items, cartTotal, branchId, orderType, floorId, tableId, clearCart } = useCart();
+  const { addOrder } = useOrders();
+  const { settings } = useSettings();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [paymentMethod, setPaymentMethod] = useState<string>('');
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const taxRates: { [key: string]: number } = {
+    'Cash': 0.16, // 16%
+    'Credit/Debit Card': 0.05, // 5%
+  };
+
+  const branch = useMemo(() => branches.find((b) => b.id === branchId), [branchId]);
+  const table = useMemo(() => settings.tables.find(t => t.id === tableId), [settings.tables, tableId]);
+
+  const taxRate = useMemo(() => {
+    return taxRates[paymentMethod] || 0;
+  }, [paymentMethod]);
+
+  const taxAmount = useMemo(() => cartTotal * taxRate, [cartTotal, taxRate]);
+  const grandTotal = useMemo(() => cartTotal + taxAmount, [cartTotal, taxAmount]);
+
+
+  if (!branchId || !orderType) {
+    return (
+        <div className="container mx-auto flex h-[calc(100vh-4rem)] flex-col items-center justify-center text-center">
+            <h1 className="font-headline text-2xl font-bold">Something went wrong</h1>
+            <p className="mt-2 text-muted-foreground">Please start your order again.</p>
+            <Button asChild className="mt-4">
+                <Link href="/">Go Home</Link>
+            </Button>
+        </div>
+    );
+  }
+  
+  const handleConfirmOrder = async () => {
+    if (isProcessing) return;
+    if (!branchId || !orderType) return;
+    if (!paymentMethod) {
+        toast({
+            variant: "destructive",
+            title: "Payment Method Required",
+            description: "Please select a payment method to continue.",
+        });
+        return;
+    }
+    
+    setIsProcessing(true);
+
+    try {
+        const orderId = crypto.randomUUID();
+        const orderNumber = `${branchId.slice(0,3).toUpperCase()}-${Date.now().toString().slice(-6)}`;
+        const orderItems: OrderItem[] = items.map(item => ({
+            id: crypto.randomUUID(),
+            orderId: orderId,
+            menuItemId: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            itemPrice: item.price
+        }));
+
+        const newOrder: Order = {
+            id: orderId,
+            orderNumber,
+            branchId,
+            orderDate: new Date().toISOString(),
+            orderType,
+            status: "Pending",
+            totalAmount: grandTotal,
+            subtotal: cartTotal,
+            taxRate: taxRate,
+            taxAmount: taxAmount,
+            items: orderItems,
+            paymentMethod,
+            ...(orderType === 'Dine-In' && { floorId, tableId }),
+        };
+        
+        // Asynchronously sync the order to the external system.
+        syncOrderToExternalSystem({
+            ...newOrder,
+            items: newOrder.items.map(item => ({
+                menuItemId: item.menuItemId,
+                name: item.name,
+                quantity: item.quantity,
+                itemPrice: item.itemPrice
+            }))
+        }).then(result => {
+            if (!result.success) {
+                toast({
+                    variant: "destructive",
+                    title: "Sync Failed",
+                    description: "Could not sync the order with the external system. Please check the logs.",
+                });
+            }
+        });
+
+        addOrder(newOrder);
+        
+        const placedOrder: PlacedOrder = {
+            orderId: newOrder.id,
+            orderNumber: newOrder.orderNumber,
+            total: grandTotal,
+            branchName: branch!.name,
+            orderType,
+            ...(table && { tableName: table.name }),
+        };
+
+        sessionStorage.setItem('placedOrder', JSON.stringify(placedOrder));
+        clearCart();
+        router.push(`/order-status?orderNumber=${newOrder.orderNumber}`);
+
+    } catch (error) {
+        console.error("Failed to place order:", error);
+        toast({
+            variant: "destructive",
+            title: "Order Failed",
+            description: "An unexpected error occurred while placing your order.",
+        });
+        setIsProcessing(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto max-w-2xl px-4 py-12">
+      <Card className="shadow-xl">
+        <CardHeader>
+          <CardTitle className="font-headline text-3xl text-center">Confirm Your Order</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="rounded-lg border p-4">
+                <p><strong>Branch:</strong> {branch?.name}</p>
+                <p><strong>Order Type:</strong> {orderType}</p>
+                {orderType === 'Dine-In' && table && (
+                    <p><strong>Table:</strong> {table.name}</p>
+                )}
+            </div>
+
+            {items.map((item, index) => (
+              <div key={item.id}>
+                <div className="flex items-center gap-4 py-2">
+                  <Image
+                    src={item.imageUrl || FALLBACK_IMAGE_URL}
+                    alt={item.name}
+                    width={48}
+                    height={48}
+                    className="rounded-md object-cover"
+                  />
+                  <div className="flex-grow">
+                    <p className="font-semibold">{item.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {item.quantity} x RS {item.price.toFixed(2)}
+                    </p>
+                  </div>
+                  <p className="font-semibold">
+                    RS {(item.quantity * item.price).toFixed(2)}
+                  </p>
+                </div>
+                {index < items.length - 1 && <Separator />}
+              </div>
+            ))}
+            <Separator />
+
+            
+            <div className="grid gap-2 pt-4">
+                <Label htmlFor="payment-method">Payment Method</Label>
+                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                    <SelectTrigger id="payment-method">
+                        <SelectValue placeholder="Select a payment method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {settings.paymentMethods.map(method => (
+                            <SelectItem key={method.id} value={method.name}>
+                                {method.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            
+
+            <div className="space-y-1 pt-4">
+                <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>RS {cartTotal.toFixed(2)}</span>
+                </div>
+                {taxAmount > 0 && (
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>Tax ({(taxRate * 100).toFixed(0)}%)</span>
+                        <span>RS {taxAmount.toFixed(2)}</span>
+                    </div>
+                )}
+                <div className="flex justify-between pt-2 text-xl font-bold border-t">
+                    <span>Grand Total</span>
+                    <span>RS {grandTotal.toFixed(2)}</span>
+                </div>
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter className="flex flex-col-reverse gap-4 sm:flex-row sm:justify-end sm:gap-2">
+          <Button variant="outline" asChild>
+            <Link href={`/branch/${branchId}/menu?mode=${orderType}`}>Cancel</Link>
+          </Button>
+          <Button
+            onClick={handleConfirmOrder}
+            className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90"
+            size="lg"
+            disabled={items.length === 0 || isProcessing}
+          >
+            {isProcessing && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+            {isProcessing ? 'Placing Order...' : 'Place Order'}
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}

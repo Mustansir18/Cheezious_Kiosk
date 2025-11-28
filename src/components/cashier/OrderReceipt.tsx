@@ -1,0 +1,112 @@
+
+"use client";
+
+import { Order } from "@/lib/types";
+import { useSettings } from "@/context/SettingsContext";
+import { useQRCode } from 'next-qrcode';
+
+interface OrderReceiptProps {
+    order: Order;
+    qrCodeUrl?: string;
+}
+
+export function OrderReceipt({ order, qrCodeUrl }: OrderReceiptProps) {
+    const { settings } = useSettings();
+    const branch = settings.branches.find(b => b.id === order.branchId);
+    const table = settings.tables.find(t => t.id === order.tableId);
+    const { Canvas: QRCodeCanvas } = useQRCode();
+
+    return (
+        <div className="p-4 bg-white text-black font-mono text-xs w-[300px]">
+            <div className="text-center mb-4">
+                <h2 className="font-bold text-lg mt-2">{settings.companyName}</h2>
+                {branch && <p>{branch.name}</p>}
+                <p className="font-bold mt-2">--- Customer Receipt ---</p>
+            </div>
+            
+            <div className="mb-2">
+                <p><strong>Order #:</strong> {order.orderNumber}</p>
+                <p><strong>Date:</strong> {new Date(order.orderDate).toLocaleString()}</p>
+                <p><strong>Type:</strong> {order.orderType}</p>
+                {table && <p><strong>Table:</strong> {table.name}</p>}
+            </div>
+            
+            <hr className="border-dashed border-black my-2" />
+            
+            <table className="w-full">
+                <thead>
+                    <tr>
+                        <th className="text-left">QTY</th>
+                        <th className="text-left">ITEM</th>
+                        <th className="text-right">PRICE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {order.items.map(item => (
+                        <tr key={item.id}>
+                            <td className="align-top pr-2 text-left">{item.quantity}</td>
+                            <td className="align-top text-left">{item.name}</td>
+                            <td className="text-right align-top">{(item.itemPrice * item.quantity).toFixed(2)}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            
+            <hr className="border-dashed border-black my-2" />
+            
+            <table className="w-full">
+                <tbody>
+                    <tr>
+                        <td>Subtotal:</td>
+                        <td className="text-right">{order.subtotal.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td>Tax ({(order.taxRate * 100).toFixed(0)}%):</td>
+                        <td className="text-right">{order.taxAmount.toFixed(2)}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <hr className="border-dashed border-black my-2" />
+            
+            <div className="font-bold text-base flex justify-between">
+                <span>TOTAL:</span>
+                <span>RS {order.totalAmount.toFixed(2)}</span>
+            </div>
+            
+            <hr className="border-dashed border-black my-2" />
+
+            {order.paymentMethod && (
+                 <p className="text-center font-bold">Paid via: {order.paymentMethod}</p>
+            )}
+
+            <div className="text-center my-2 text-[10px]">
+                {order.acceptedByName && <p>Accepted by: {order.acceptedByName}</p>}
+                {order.completedByName && <p>Completed by: {order.completedByName}</p>}
+            </div>
+            
+            {qrCodeUrl && (
+                <div className="flex flex-col items-center justify-center mt-4">
+                     <QRCodeCanvas
+                        text={qrCodeUrl}
+                        options={{
+                            type: 'image/png',
+                            quality: 0.9,
+                            errorCorrectionLevel: 'M',
+                            margin: 3,
+                            scale: 4,
+                            width: 150,
+                             color: {
+                                dark: '#000000FF',
+                                light: '#FFFFFFFF',
+                            },
+                        }}
+                    />
+                    <p className="text-center text-[10px] mt-1">Scan to check order status</p>
+                </div>
+            )}
+            
+            <p className="text-center mt-4 font-bold">Thank you for your visit!</p>
+        </div>
+    );
+}
