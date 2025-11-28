@@ -20,7 +20,7 @@ function OrderInfoModal({ order }: { order: Order }) {
     }, []);
 
     const qrCodeUrl = useMemo(() => {
-      if (origin) {
+      if (origin && order.orderNumber) {
         return `${origin}/order-status?orderNumber=${order.orderNumber}`;
       }
       return '';

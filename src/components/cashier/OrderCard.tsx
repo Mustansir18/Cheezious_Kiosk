@@ -52,7 +52,7 @@ export function OrderCard({ order, workflow = 'cashier', onUpdateStatus, childre
   };
 
   const qrCodeUrl = useMemo(() => {
-      if (origin) {
+      if (origin && order.orderNumber) {
         return `${origin}/order-status?orderNumber=${order.orderNumber}`;
       }
       return '';
@@ -63,7 +63,6 @@ export function OrderCard({ order, workflow = 'cashier', onUpdateStatus, childre
     const printableArea = document.getElementById(`printable-receipt-${order.id}`);
     if (!printableArea) return;
 
-    // Temporarily append to a visible part of the body to print
     const printContainer = document.createElement('div');
     printContainer.id = 'printable-area';
     printContainer.appendChild(printableArea.cloneNode(true));

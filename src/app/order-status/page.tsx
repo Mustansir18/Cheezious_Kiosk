@@ -7,16 +7,14 @@ import * as Tone from "tone";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { CheckCircle, Loader, Utensils, Printer } from "lucide-react";
-import type { Order, PlacedOrder } from "@/lib/types";
+import type { Order } from "@/lib/types";
 import { useOrders } from "@/context/OrderContext";
 import { useSettings } from "@/context/SettingsContext";
 import { OrderReceipt } from "@/components/cashier/OrderReceipt";
-import { useQRCode } from 'next-qrcode';
 
 const IDLE_TIMEOUT_SECONDS = 30; // 30 seconds
 
 export default function OrderStatusPage() {
-  const [placedOrderInfo, setPlacedOrderInfo] = useState<PlacedOrder | null>(null);
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -39,20 +37,24 @@ export default function OrderStatusPage() {
     idleTimer.current = setTimeout(resetToHome, IDLE_TIMEOUT_SECONDS * 1000);
   },[resetToHome]);
 
+  const [hasPlacedOrder, setHasPlacedOrder] = useState(false);
+
   useEffect(() => {
       setIsClient(true);
       try {
         const storedOrder = sessionStorage.getItem("placedOrder");
         if (storedOrder) {
           const parsedOrder = JSON.parse(storedOrder);
+          // We only care if we just came from checkout, which this flag indicates.
           if (parsedOrder.orderNumber === orderNumberFromUrl) {
-            setPlacedOrderInfo(parsedOrder);
+            setHasPlacedOrder(true);
           }
         }
       } catch (error) {
-        console.error("Could not load placed order info from session storage", error);
+        console.error("Could not check session storage for placed order", error);
       }
   }, [orderNumberFromUrl]);
+
 
   const order: Order | undefined = useMemo(() => {
     if (!orderNumberFromUrl) return undefined;
@@ -92,12 +94,12 @@ export default function OrderStatusPage() {
   }, [order, resetIdleTimer]);
   
   useEffect(() => {
-    // Auto-print only if we came from checkout (indicated by sessionStorage item)
-    if (!isLoading && order && settings.autoPrintReceipts && !printTriggered.current && placedOrderInfo) {
+    // Auto-print only if we just placed an order (hasPlacedOrder is true)
+    if (!isLoading && order && settings.autoPrintReceipts && !printTriggered.current && hasPlacedOrder) {
         printTriggered.current = true;
         handlePrint();
     }
-  }, [isLoading, order, settings.autoPrintReceipts, handlePrint, placedOrderInfo]);
+  }, [isLoading, order, settings.autoPrintReceipts, handlePrint, hasPlacedOrder]);
 
   useEffect(() => {
     if (status === 'Ready') {
@@ -116,8 +118,8 @@ export default function OrderStatusPage() {
   }, [status]);
   
   useEffect(() => {
-      // Only set up idle timer if we came from checkout (session storage exists)
-      if(!placedOrderInfo) return;
+      // Only set up idle timer if we came from checkout
+      if(!hasPlacedOrder) return;
 
       resetIdleTimer();
       const events: (keyof WindowEventMap)[] = ['mousemove', 'mousedown', 'keypress', 'touchstart'];
@@ -129,7 +131,7 @@ export default function OrderStatusPage() {
           }
           events.forEach(event => window.removeEventListener(event, resetIdleTimer));
       };
-  }, [resetIdleTimer, placedOrderInfo]);
+  }, [resetIdleTimer, hasPlacedOrder]);
 
   if (!isClient || isLoading) {
     return (
@@ -151,6 +153,7 @@ export default function OrderStatusPage() {
        </div>
     );
   }
+
 
   const isOrderActive = status === 'Pending' || status === 'Preparing';
   const isOrderReady = status === 'Ready';
