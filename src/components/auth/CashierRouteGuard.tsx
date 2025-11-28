@@ -21,15 +21,18 @@ export function CashierRouteGuard({ children }: { children: React.ReactNode }) {
       return;
     } 
     
-    const isAuthorized = user.role === 'cashier' || user.role === 'admin';
+    const isAuthorized = user.role === 'cashier' || user.role === 'admin' || user.role === 'root';
     if (!isAuthorized) {
       // Logged in, but not authorized for cashier view, redirect to home
       router.replace('/'); 
     }
   }, [user, isLoading, router]);
 
-  // Show loading screen while verifying auth state or if user is not yet loaded/authorized
-  if (isLoading || !user || !(user.role === 'cashier' || user.role === 'admin')) {
+  // While loading, or if the user is not authenticated/authorized, show a loading screen.
+  // This prevents any child content from rendering until the check is complete.
+  const isAuthorized = user && (user.role === 'cashier' || user.role === 'admin' || user.role === 'root');
+
+  if (isLoading || !isAuthorized) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader className="h-12 w-12 animate-spin text-primary" />

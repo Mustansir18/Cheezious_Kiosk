@@ -59,16 +59,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Load users from localStorage and session on initial render
   useEffect(() => {
-    let sessionUser: User | null = null;
+    setIsLoading(true);
     try {
-      // First, try to get the user from the current session
-      const sessionData = sessionStorage.getItem(SESSION_STORAGE_KEY);
-      if (sessionData) {
-        sessionUser = JSON.parse(sessionData);
-        setUser(sessionUser);
-      }
-
-      // Then, load the full user list from local storage
+      // First, load the full user list from local storage
       const storedUsersJSON = localStorage.getItem(USERS_STORAGE_KEY);
       let loadedUsers: User[] = storedUsersJSON ? JSON.parse(storedUsersJSON) : [];
       
@@ -88,10 +81,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       setUsers(updatedUsers);
 
+      // After setting users, try to get the active user from the current session
+      const sessionData = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (sessionData) {
+        const sessionUser = JSON.parse(sessionData);
+        // Verify the session user still exists in our user list
+        if (updatedUsers.some(u => u.id === sessionUser.id)) {
+          setUser(sessionUser);
+        } else {
+          // The user in session doesn't exist anymore, clear session
+          sessionStorage.removeItem(SESSION_STORAGE_KEY);
+          setUser(null);
+        }
+      }
+
     } catch (error) {
       console.error("Failed to initialize auth state:", error);
       setUsers(defaultUsers); // Reset to default if storage is corrupt
       setUser(null); // Ensure user is logged out if there's an error
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
     } finally {
       setIsLoading(false);
     }

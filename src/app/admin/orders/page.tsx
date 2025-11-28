@@ -8,6 +8,8 @@ import { useOrders } from "@/context/OrderContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { OrderReceipt } from "@/components/cashier/OrderReceipt";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import { useMemo } from "react";
 
 function OrderInfoModal({ order }: { order: Order }) {
     return (
@@ -32,10 +34,18 @@ function OrderInfoModal({ order }: { order: Order }) {
 
 export default function AdminOrdersPage() {
   const { orders, isLoading, updateOrderStatus } = useOrders();
+  const { user } = useAuth();
+  
+  const filteredOrders = useMemo(() => {
+    if (!user || user.role === 'root') {
+      return orders;
+    }
+    return orders.filter(order => order.branchId === user.branchId);
+  }, [orders, user]);
 
-  const runningOrders = orders.filter(order => order.status === "Pending" || order.status === "Preparing");
-  const readyOrders = orders.filter(order => order.status === "Ready");
-  const completedOrders = orders.filter(order => order.status === "Completed");
+  const runningOrders = filteredOrders.filter(order => order.status === "Pending" || order.status === "Preparing");
+  const readyOrders = filteredOrders.filter(order => order.status === "Ready");
+  const completedOrders = filteredOrders.filter(order => order.status === "Completed");
 
   if (isLoading) {
       return (
@@ -50,7 +60,7 @@ export default function AdminOrdersPage() {
     <div className="container mx-auto p-4 lg:p-8">
       <header className="mb-8">
         <h1 className="font-headline text-4xl font-bold">Order Management</h1>
-        <p className="text-muted-foreground">Live view of all running, ready, and completed orders.</p>
+        <p className="text-muted-foreground">Live view of all running, ready, and completed orders for your branch.</p>
       </header>
 
       <div className="space-y-12">

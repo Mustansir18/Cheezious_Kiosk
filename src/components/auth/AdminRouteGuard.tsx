@@ -38,30 +38,22 @@ export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
     
     // If user is a branch admin (not root) and tries to access a root-only page
     if (user.role === 'admin' && ROOT_ONLY_PAGES.includes(pathname)) {
-      router.replace('/admin'); // Redirect to their allowed dashboard
+      router.replace('/admin/orders'); // Redirect to their allowed dashboard
       return;
     }
   }, [user, isLoading, router, pathname]);
 
-  // While loading or if there's no user (and redirect is in progress), show a loading state.
-  if (isLoading || !user) {
+  // While loading, or if the user is not authenticated/authorized, show a loading screen.
+  // This prevents any child content from rendering until the check is complete.
+  const isAuthorized = user && (user.role === 'root' || (user.role === 'admin' && !ROOT_ONLY_PAGES.includes(pathname)));
+
+  if (isLoading || !isAuthorized) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader className="h-12 w-12 animate-spin text-primary" />
         <p className="ml-4 text-muted-foreground">Verifying access...</p>
       </div>
     );
-  }
-
-  // A final check to prevent rendering children if redirection is needed for role mismatch
-  const isAuthorized = (user.role === 'root') || (user.role === 'admin' && !ROOT_ONLY_PAGES.includes(pathname));
-  if (!isAuthorized) {
-       return (
-        <div className="flex h-screen items-center justify-center">
-            <Loader className="h-12 w-12 animate-spin text-primary" />
-            <p className="ml-4 text-muted-foreground">Access Denied. Redirecting...</p>
-        </div>
-      );
   }
 
   return <>{children}</>;
