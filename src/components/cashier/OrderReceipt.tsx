@@ -20,7 +20,7 @@ export function OrderReceipt({ order, qrCodeUrl }: OrderReceiptProps) {
         <div className="p-4 bg-white text-black font-mono text-xs w-[300px]">
             <div className="text-center mb-4">
                 <h2 className="font-bold text-lg mt-2">{settings.companyName}</h2>
-                {branch && <p>{branch.location}</p>}
+                {branch && <p>{branch.name}</p>}
                 <p className="font-bold mt-2">--- Customer Receipt ---</p>
             </div>
             
@@ -60,7 +60,7 @@ export function OrderReceipt({ order, qrCodeUrl }: OrderReceiptProps) {
                         <td>Subtotal:</td>
                         <td className="text-right">{order.subtotal.toFixed(2)}</td>
                     </tr>
-                    <tr>
+                     <tr>
                         <td>Tax ({(order.taxRate * 100).toFixed(0)}%):</td>
                         <td className="text-right">{order.taxAmount.toFixed(2)}</td>
                     </tr>
