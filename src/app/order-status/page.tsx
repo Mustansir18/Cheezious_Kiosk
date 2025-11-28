@@ -7,16 +7,16 @@ import * as Tone from "tone";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { CheckCircle, Loader, Utensils, Printer } from "lucide-react";
-import type { Order } from "@/lib/types";
+import type { Order, PlacedOrder } from "@/lib/types";
 import { useOrders } from "@/context/OrderContext";
 import { useSettings } from "@/context/SettingsContext";
 import { OrderReceipt } from "@/components/cashier/OrderReceipt";
-import { branches } from "@/lib/data";
-
+import { useQRCode } from 'next-qrcode';
 
 const IDLE_TIMEOUT_SECONDS = 30; // 30 seconds
 
 export default function OrderStatusPage() {
+  const [placedOrderInfo, setPlacedOrderInfo] = useState<PlacedOrder | null>(null);
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -28,6 +28,7 @@ export default function OrderStatusPage() {
   const orderNumberFromUrl = searchParams.get('orderNumber');
   
   const resetToHome = useCallback(() => {
+    sessionStorage.removeItem("placedOrder");
     router.push("/");
   }, [router]);
 
@@ -40,26 +41,23 @@ export default function OrderStatusPage() {
 
   useEffect(() => {
       setIsClient(true);
-  }, []);
+      try {
+        const storedOrder = sessionStorage.getItem("placedOrder");
+        if (storedOrder) {
+          const parsedOrder = JSON.parse(storedOrder);
+          if (parsedOrder.orderNumber === orderNumberFromUrl) {
+            setPlacedOrderInfo(parsedOrder);
+          }
+        }
+      } catch (error) {
+        console.error("Could not load placed order info from session storage", error);
+      }
+  }, [orderNumberFromUrl]);
 
   const order: Order | undefined = useMemo(() => {
     if (!orderNumberFromUrl) return undefined;
     return orders.find(o => o.orderNumber === orderNumberFromUrl);
   }, [orders, orderNumberFromUrl]);
-  
-  // Try to get placedOrder from session storage for summary card, but rely on full order object for receipt
-  const placedOrderInfo = useMemo(() => {
-      if (!isClient) return null;
-      const storedOrder = sessionStorage.getItem("placedOrder");
-      if (storedOrder) {
-          const parsed = JSON.parse(storedOrder);
-          if(parsed.orderNumber === orderNumberFromUrl) {
-              return parsed;
-          }
-      }
-      return null;
-  }, [isClient, orderNumberFromUrl]);
-
 
   const status = order?.status;
   const isLoading = isOrdersLoading || isSettingsLoading;
@@ -70,14 +68,6 @@ export default function OrderStatusPage() {
     }
     return '';
   }, [isClient, order]);
-  
-  const branchName = useMemo(() => {
-      if(order){
-          return branches.find(b => b.id === order.branchId)?.name || order.branchId
-      }
-      return placedOrderInfo?.branchName;
-  }, [order, placedOrderInfo])
-
 
   const handlePrint = useCallback(() => {
     resetIdleTimer(); // Reset timer on interaction
@@ -106,10 +96,8 @@ export default function OrderStatusPage() {
     if (!isLoading && order && settings.autoPrintReceipts && !printTriggered.current && placedOrderInfo) {
         printTriggered.current = true;
         handlePrint();
-        sessionStorage.removeItem("placedOrder"); // Clear after printing
     }
   }, [isLoading, order, settings.autoPrintReceipts, handlePrint, placedOrderInfo]);
-
 
   useEffect(() => {
     if (status === 'Ready') {
@@ -132,27 +120,18 @@ export default function OrderStatusPage() {
       if(!placedOrderInfo) return;
 
       resetIdleTimer();
-      window.addEventListener('mousemove', resetIdleTimer);
-      window.addEventListener('mousedown', resetIdleTimer);
-      window.addEventListener('keypress', resetIdleTimer);
-      window.addEventListener('touchstart', resetIdleTimer);
+      const events: (keyof WindowEventMap)[] = ['mousemove', 'mousedown', 'keypress', 'touchstart'];
+      events.forEach(event => window.addEventListener(event, resetIdleTimer));
 
       return () => {
           if (idleTimer.current) {
               clearTimeout(idleTimer.current);
           }
-          window.removeEventListener('mousemove', resetIdleTimer);
-          window.removeEventListener('mousedown', resetIdleTimer);
-          window.removeEventListener('keypress', resetIdleTimer);
-          window.removeEventListener('touchstart', resetIdleTimer);
+          events.forEach(event => window.removeEventListener(event, resetIdleTimer));
       };
   }, [resetIdleTimer, placedOrderInfo]);
 
-  if (!isClient) {
-      return null;
-  }
-
-  if (isLoading && !order) {
+  if (!isClient || isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader className="h-12 w-12 animate-spin text-primary" />
@@ -173,11 +152,8 @@ export default function OrderStatusPage() {
     );
   }
 
-
   const isOrderActive = status === 'Pending' || status === 'Preparing';
   const isOrderReady = status === 'Ready';
-  const table = settings.tables.find(t => t.id === order.tableId);
-
 
   return (
     <div className="container mx-auto flex min-h-screen items-center justify-center p-4">
@@ -213,8 +189,8 @@ export default function OrderStatusPage() {
           
           <div className="mt-6 text-left border rounded-lg p-4 bg-muted/20">
             <h3 className="font-headline font-semibold mb-2">Order Summary</h3>
-            <p><strong>Branch:</strong> {branchName}</p>
-            {table && <p><strong>Table:</strong> {table.name}</p>}
+            <p><strong>Branch:</strong> {settings.branches.find(b => b.id === order.branchId)?.name || order.branchId}</p>
+            {order.tableId && <p><strong>Table:</strong> {settings.tables.find(t => t.id === order.tableId)?.name || order.tableId}</p>}
             <p><strong>Total:</strong> <span className="font-bold">RS {order.totalAmount.toFixed(2)}</span></p>
           </div>
         </CardContent>

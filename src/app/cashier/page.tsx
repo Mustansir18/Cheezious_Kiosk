@@ -6,7 +6,7 @@ import { BarChart, Clock, CookingPot, CheckCircle, Loader, Info } from "lucide-r
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrders } from "@/context/OrderContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { OrderReceipt } from "@/components/cashier/OrderReceipt";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,12 @@ function OrderInfoModal({ order }: { order: Order }) {
         }
     }, []);
 
-    const qrCodeUrl = origin ? `${origin}/order-status?orderNumber=${order.orderNumber}` : '';
+    const qrCodeUrl = useMemo(() => {
+      if (origin) {
+        return `${origin}/order-status?orderNumber=${order.orderNumber}`;
+      }
+      return '';
+    }, [origin, order.orderNumber]);
 
     return (
         <Dialog>
