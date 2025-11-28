@@ -149,10 +149,6 @@ export default function QRCodesPage() {
       }
     }
   }, [settings.branches, settings.defaultBranchId, settings.floors]);
-  
-  const handlePrint = () => {
-    window.print();
-  };
 
   const { selectedBranch, selectedFloor, tablesForSelectedFloor } = useMemo(() => {
     const branch = settings.branches.find(b => b.id === selectedBranchId);
@@ -256,9 +252,6 @@ export default function QRCodesPage() {
             Generate and print QR codes for tables and for Take Away orders.
           </p>
         </div>
-        <Button onClick={handlePrint}>
-            <Printer className="mr-2 h-4 w-4" /> Print Visible Codes
-        </Button>
       </header>
 
       <Card className="print-hidden">
