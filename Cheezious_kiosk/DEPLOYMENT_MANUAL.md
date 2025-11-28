@@ -64,7 +64,7 @@ Follow these steps to deploy the application on your server.
 
 ### Step 2.1: Prepare the Application
 1. **Copy Files:** Transfer the entire `Cheezious_kiosk` application folder to a directory on your server (e.g., `C:\inetpub\wwwroot\cheezious-connect`).
-2. **Install Dependencies:** Navigate to the application directory in PowerShell or Command Prompt and run:
+2. **Install Dependencies:** Navigate to the application directory in PowerShell or Command Prompt. **If the `node_modules` folder already exists, delete it first to ensure a clean installation.** Then run:
    ```powershell
    npm install
    ```
@@ -74,7 +74,7 @@ Follow these steps to deploy the application on your server.
    ```powershell
    npm run build
    ```
-   The `build` script in `package.json` is now configured to work correctly in Windows environments.
+   This command uses the standard Next.js build process and should now work correctly in your Windows environment after a clean `npm install`.
 
 ### Step 2.2: Run the Application with PM2
 1. **Start the App:** In the application directory, start the Next.js application using PM2. This command will start the app, name it `cheezious-connect`, and listen on port `9002`.
