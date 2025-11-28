@@ -213,38 +213,22 @@ export default function QRCodesPage() {
         pdf.save(`${selectedBranch.name}-${selectedFloor.name}-QRCodes.pdf`.toLowerCase().replace(/\s/g, '-'));
 
     } else if (format === 'png') {
-        // Create a temporary container to hold all the QR cards for a single screenshot
-        const container = document.createElement('div');
-        container.style.position = 'absolute';
-        container.style.left = '-9999px'; // Move it off-screen
-        container.className = "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 p-4 bg-background";
-        
-        tablesForSelectedFloor.forEach(table => {
-            const el = document.getElementById(`qr-card-container-${table.id}`);
-            if (el) {
-                const clone = el.cloneNode(true) as HTMLElement;
-                // Remove download buttons from clone to not show them in the final image
-                const buttons = clone.querySelector('.print-hidden');
-                if (buttons) {
-                    buttons.remove();
+        for (const table of tablesForSelectedFloor) {
+            const element = document.getElementById(`qr-card-container-${table.id}`);
+            if (element) {
+                 try {
+                    const canvas = await html2canvas(element, { scale: 5, useCORS: true, backgroundColor: 'white' });
+                    const link = document.createElement('a');
+                    link.download = `${settings.companyName}-${selectedBranch.name}-${selectedFloor.name}-${table.name}-QR.png`.toLowerCase().replace(/\s/g, '-');
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    // Add a small delay between downloads to prevent browser blocking
+                    await new Promise(resolve => setTimeout(resolve, 200)); 
+                } catch (error) {
+                    console.error(`Failed to export table ${table.name} as PNG:`, error);
+                    toast({ variant: 'destructive', title: 'Export Failed', description: `Could not generate PNG for table ${table.name}.` });
                 }
-                container.appendChild(clone);
             }
-        });
-
-        document.body.appendChild(container);
-
-        try {
-            const canvas = await html2canvas(container, { scale: 3, useCORS: true, backgroundColor: 'white' });
-            const link = document.createElement('a');
-            link.download = `${selectedBranch.name}-${selectedFloor.name}-QRCodes.png`.toLowerCase().replace(/\s/g, '-');
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        } catch (error) {
-            console.error("Failed to export as PNG:", error);
-            toast({ variant: 'destructive', title: 'Export Failed', description: 'Could not generate the PNG file.' });
-        } finally {
-            document.body.removeChild(container);
         }
     }
     toast({
@@ -252,7 +236,7 @@ export default function QRCodesPage() {
         description: `Your QR codes have been downloaded.`,
     });
 
-  }, [tablesForSelectedFloor, selectedBranch, selectedFloor]);
+  }, [tablesForSelectedFloor, selectedBranch, selectedFloor, settings.companyName]);
 
 
   if (isLoading || !origin) {
@@ -376,5 +360,6 @@ export default function QRCodesPage() {
     </div>
   );
 }
+
 
 
