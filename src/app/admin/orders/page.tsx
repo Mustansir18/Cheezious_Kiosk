@@ -9,9 +9,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { OrderReceipt } from "@/components/cashier/OrderReceipt";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 function OrderInfoModal({ order }: { order: Order }) {
+    const [origin, setOrigin] = useState('');
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setOrigin(window.location.origin);
+        }
+    }, []);
+
+    const qrCodeUrl = origin ? `${origin}/order-status?orderNumber=${order.orderNumber}` : '';
+
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -24,7 +33,7 @@ function OrderInfoModal({ order }: { order: Order }) {
                     <DialogTitle>Order Details</DialogTitle>
                 </DialogHeader>
                 <div className="py-4">
-                    <OrderReceipt order={order} />
+                    <OrderReceipt order={order} qrCodeUrl={qrCodeUrl}/>
                 </div>
             </DialogContent>
         </Dialog>

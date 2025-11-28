@@ -66,9 +66,13 @@ export function OrderCard({ order, workflow = 'cashier', onUpdateStatus, childre
     
     document.body.classList.add('printing-active');
     window.print();
-    document.body.classList.remove('printing-active');
-
-    document.body.removeChild(printContainer);
+    
+    setTimeout(() => {
+        if (document.body.contains(printContainer)) {
+          document.body.removeChild(printContainer);
+        }
+        document.body.classList.remove('printing-active');
+    }, 500);
   };
   
   const StatusIcon = statusConfig[order.status]?.icon || Loader;
