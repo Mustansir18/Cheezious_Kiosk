@@ -188,7 +188,7 @@ export default function QRCodesPage() {
         let isFirstPage = true;
 
         for (const table of tablesForSelectedFloor) {
-            const element = document.getElementById(`qr-card-container-${table.id}`);
+            const element = document.getElementById(`qr-card-${table.id}`);
             if (element) {
                 const canvas = await html2canvas(element, { scale: 5, useCORS: true, backgroundColor: 'white' });
                 const imgData = canvas.toDataURL('image/png');
@@ -214,7 +214,7 @@ export default function QRCodesPage() {
 
     } else if (format === 'png') {
         for (const table of tablesForSelectedFloor) {
-            const element = document.getElementById(`qr-card-container-${table.id}`);
+            const element = document.getElementById(`qr-card-${table.id}`);
             if (element) {
                  try {
                     const canvas = await html2canvas(element, { scale: 5, useCORS: true, backgroundColor: 'white' });
@@ -286,14 +286,14 @@ export default function QRCodesPage() {
                     <CardDescription>A general-purpose QR code for customers placing take away orders.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="max-w-sm mx-auto" id="qr-card-container-take-away">
+                    <div className="max-w-sm mx-auto">
                         <QRCodeDisplay
                             title="Take Away"
                             icon={ShoppingBag}
                             url={takeAwayUrl}
                             companyName={settings.companyName}
                             branchName={selectedBranch.name}
-                            qrId="take-away"
+                            qrId="qr-card-take-away"
                         />
                     </div>
                 </CardContent>
@@ -336,17 +336,16 @@ export default function QRCodesPage() {
                         {tablesForSelectedFloor.map(table => {
                             const floor = settings.floors.find(f => f.id === table.floorId);
                             return (
-                                <div id={`qr-card-container-${table.id}`} key={table.id}>
                                 <QRCodeDisplay
+                                    key={table.id}
                                     title="Dine-In"
                                     subtitle={`${floor?.name || ''} - ${table.name}`}
                                     icon={Utensils}
                                     url={`${origin}/branch/${selectedBranchId}?mode=Dine-In&tableId=${table.id}&floorId=${table.floorId}`}
                                     companyName={settings.companyName}
                                     branchName={selectedBranch.name}
-                                    qrId={`table-${table.id}`}
+                                    qrId={`qr-card-${table.id}`}
                                 />
-                                </div>
                             )
                         })}
                     </div>
@@ -360,6 +359,4 @@ export default function QRCodesPage() {
     </div>
   );
 }
-
-
 
