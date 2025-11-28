@@ -14,7 +14,7 @@ export function OrderReceipt({ order, qrCodeUrl }: OrderReceiptProps) {
     const { settings } = useSettings();
     const branch = settings.branches.find(b => b.id === order.branchId);
     const table = settings.tables.find(t => t.id === order.tableId);
-    const { Image: QRCodeImage } = useQRCode();
+    const { Canvas: QRCodeCanvas } = useQRCode();
 
     return (
         <div className="p-4 bg-white text-black font-mono text-xs w-[300px]">
@@ -36,7 +36,7 @@ export function OrderReceipt({ order, qrCodeUrl }: OrderReceiptProps) {
             <table className="w-full">
                 <thead>
                     <tr>
-                        <th className="text-left">QTY</th>
+                        <th className="text-left pr-2">QTY</th>
                         <th className="text-left">ITEM</th>
                         <th className="text-right">PRICE</th>
                     </tr>
@@ -44,7 +44,7 @@ export function OrderReceipt({ order, qrCodeUrl }: OrderReceiptProps) {
                 <tbody>
                     {order.items.map(item => (
                         <tr key={item.id}>
-                            <td className="align-top">{item.quantity}</td>
+                            <td className="align-top pr-2">{item.quantity}</td>
                             <td className="align-top">{item.name}</td>
                             <td className="text-right align-top">{(item.itemPrice * item.quantity).toFixed(2)}</td>
                         </tr>
@@ -60,7 +60,7 @@ export function OrderReceipt({ order, qrCodeUrl }: OrderReceiptProps) {
                         <td>Subtotal:</td>
                         <td className="text-right">{order.subtotal.toFixed(2)}</td>
                     </tr>
-                     <tr>
+                    <tr>
                         <td>Tax ({(order.taxRate * 100).toFixed(0)}%):</td>
                         <td className="text-right">{order.taxAmount.toFixed(2)}</td>
                     </tr>
@@ -87,10 +87,10 @@ export function OrderReceipt({ order, qrCodeUrl }: OrderReceiptProps) {
             
             {qrCodeUrl && (
                 <div className="flex flex-col items-center justify-center mt-4">
-                     <QRCodeImage
+                     <QRCodeCanvas
                         text={qrCodeUrl}
                         options={{
-                            type: 'image/jpeg',
+                            type: 'image/png',
                             quality: 0.9,
                             errorCorrectionLevel: 'M',
                             margin: 3,
