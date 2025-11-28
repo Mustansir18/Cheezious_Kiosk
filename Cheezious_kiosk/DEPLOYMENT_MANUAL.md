@@ -68,7 +68,9 @@ Follow these steps to deploy the application on your server.
    ```powershell
    npm install
    ```
-3. **Build the Application:** Run the production build command. This compiles the application into an optimized set of files. **This is the correct command for Windows environments.**
+   **This step is critical and must be run after any changes to `package.json`.** It installs necessary dependencies, including `cross-env` which is required for the build script.
+
+3. **Build the Application:** Run the production build command. This compiles the application into an optimized set of files.
    ```powershell
    npm run build
    ```
