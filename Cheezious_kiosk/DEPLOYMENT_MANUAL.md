@@ -68,7 +68,7 @@ Follow these steps to deploy the application on your server.
    ```powershell
    npm install
    ```
-3. **Build the Application:** Run the production build command. This compiles the application into an optimized set of files.
+3. **Build the Application:** Run the production build command. This compiles the application into an optimized set of files. **This is the correct command for Windows environments.**
    ```powershell
    npm run build
    ```
@@ -128,7 +128,7 @@ Your `web.config` file in the application's root directory should now contain a 
 The Cheezious Connect application is now running as a standalone system.
 - **Order Management:** All orders placed through the kiosk are stored locally in the browser's session storage. Order data is managed within the application and can be viewed in the Admin and Cashier dashboards.
 - **Data Persistence:** Order data persists for the duration of a browser session. Closing the browser or clearing session data will remove the order history.
-- **External Sync:** The integration with external systems like Microsoft Dynamics 365 has been disabled. The `syncOrderToExternalSystem` function in `src/ai/flows/sync-order-flow.ts` is configured to process orders internally and will not make external API calls.
+- **External Sync:** The integration with external systems has been disabled. The `syncOrderToExternalSystem` function in `src/ai/flows/sync-order-flow.ts` is configured to process orders internally and will not make external API calls.
 
 ## 4. Final Verification
 
